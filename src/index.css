@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Design tokens (kept for parity with current design) */
+:root{
+  --navy-primary:#1A237E;
+  --sage-primary:#4A7C59;
+  --lavender-primary:#673AB7;
+  --yellow-accent:#FFC107;
+  --terracotta-accent:rgba(183,74,55,.7);
+  --spacing-sm:8px; --spacing-md:16px; --spacing-lg:24px; --spacing-xl:32px;
+}
+html,body{height:100%}
