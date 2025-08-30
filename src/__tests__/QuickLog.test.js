@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { GlobalProvider } from '../context/GlobalState';
-import QuickLog from '../features/QuickLog/QuickLog';
+import QuickLog from '../features/quicklog/QuickLog';
 
 /**
  * Tests for the QuickLog component.  Ensures that the form can be filled
