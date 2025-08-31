@@ -8,6 +8,28 @@ const initialStudents = [
 ];
 
 export const useStore = create((set, get) => ({
+  // Auth
+  user: null,
+  token: null,
+  error: null,
+  login: async (username, password) => {
+    try {
+      const response = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+      set({ user: data.user, token: data.token, error: null });
+    } catch (error) {
+      set({ error: error.message });
+    }
+  },
+  logout: () => set({ user: null, token: null }),
+
   // UI
   currentView: "weather", // "weather" | "garden" | "constellation" | "analytics"
   setView: (view) => set({ currentView: view }),
@@ -27,6 +49,26 @@ export const useStore = create((set, get) => ({
   ],
 
   // Actions
+  addLog: async (log) => {
+    const { token } = get();
+    try {
+      const response = await fetch('/api/logs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(log)
+      });
+      if (!response.ok) {
+        throw new Error('Failed to save log');
+      }
+      const newLog = await response.json();
+      set(state => ({ logs: [...state.logs, newLog] }));
+    } catch (error) {
+      set({ error: error.message });
+    }
+  },
   logBehaviour: ({ studentId, behaviourId, note = "" }) => {
     const entry = { id: Date.now(), studentId, behaviourId, note, timestamp: new Date() };
     const behaviours = [...get().behaviours, entry];

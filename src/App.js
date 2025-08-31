@@ -1,18 +1,16 @@
 import React from 'react';
 import { useStore } from "./state/useStore";
-import { useGlobalContext } from './context/GlobalState';
 import WeatherDashboard from "./features/weather";
 import GardenDashboard from "./features/garden";
 import ConstellationDashboard from "./features/constellation";
 import AnalyticsView from "./features/analytics";
-import QuickLog from "./features/quicklog";
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
+import QuickLog from "./features/quicklog/QuickLog";
 import Login from './features/Auth/Login';
 
 export default function App() {
-  const { currentView, setView } = useStore();
-  // For now, we'll keep the old auth logic until we migrate it to Zustand
-  const { state } = useGlobalContext();
-  const isAuthenticated = !!state.token;
+  const { currentView, setView, token } = useStore();
+  const isAuthenticated = !!token;
 
   if (!isAuthenticated) {
     return <Login />;
@@ -27,22 +25,21 @@ export default function App() {
         <button onClick={()=>setView("constellation")}>Constellation</button>
         <button onClick={()=>setView("analytics")}>Reports</button>
         <div className="ml-auto">
-          <QuickLog.Trigger />{/* one‑click log from anywhere */}
+          <Link to="/quick-log" className="bg-secondary-dark text-white px-3 py-1 rounded hover:bg-secondary">Quick Log</Link>
         </div>
       </nav>
 
       {/* Content */}
       <main className="flex-1 p-4">
-        {currentView === "weather" && <WeatherDashboard />}
-        {currentView === "garden" && <GardenDashboard />}
-        {currentView === "constellation" && <ConstellationDashboard />}
-        {currentView === "analytics" && <AnalyticsView />}
+        <Routes>
+          <Route path="/weather" element={<WeatherDashboard />} />
+          <Route path="/garden" element={<GardenDashboard />} />
+          <Route path="/constellation" element={<ConstellationDashboard />} />
+          <Route path="/analytics" element={<AnalyticsView />} />
+          <Route path="/quick-log" element={<QuickLog />} />
+          <Route path="/" element={<Navigate to="/weather" replace />} />
+        </Routes>
       </main>
-
-      {/* Floating QuickLog Trigger */}
-      <div className="fixed right-4 bottom-4 z-40">
-        <QuickLog.Trigger />
-      </div>
     </div>
   );
 }
