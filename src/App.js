@@ -1,6 +1,5 @@
 import React from 'react';
 import { useStore } from "./state/useStore";
-import { useGlobalContext } from './context/GlobalState';
 import WeatherDashboard from "./features/weather";
 import GardenDashboard from "./features/garden";
 import ConstellationDashboard from "./features/constellation";
@@ -10,10 +9,8 @@ import QuickLog from "./features/quicklog/QuickLog";
 import Login from './features/Auth/Login';
 
 export default function App() {
-  const { currentView, setView } = useStore();
-  // For now, we'll keep the old auth logic until we migrate it to Zustand
-  const { state } = useGlobalContext();
-  const isAuthenticated = !!state.token;
+  const { currentView, setView, token } = useStore();
+  const isAuthenticated = !!token;
 
   if (!isAuthenticated) {
     return <Login />;

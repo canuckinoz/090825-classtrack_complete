@@ -7,7 +7,11 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 5001;
-const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET || JWT_SECRET === 'supersecret') {
+  throw new Error('JWT_SECRET is not set or is insecure. Please set it in your .env file.');
+}
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -44,7 +48,7 @@ function authenticateToken(req, res, next) {
 app.post('/api/register', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) return res.status(400).json({ message: 'Missing credentials' });
-  if (users[username]) return res.status(409).json({ message: 'User already exists' });
+  if (users[username]) return res.status(400).json({ message: 'Invalid request' });
   const hashed = await bcrypt.hash(password, 10);
   users[username] = { username, password: hashed };
   res.status(201).json({ message: 'User registered' });

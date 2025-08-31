@@ -1,43 +1,29 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useGlobalContext } from '../../context/GlobalState';
+import { useStore } from '../../state/useStore';
 
 /**
- * Login component for authenticating users.  It posts credentials to the
- * backend server and stores the returned token and user in the global state.
+ * Login component for authenticating users.  It uses the Zustand store
+ * to handle the login logic and state updates.
  */
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { dispatch } = useGlobalContext();
-  const navigate = useNavigate();
+  const { login, error } = useStore();
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      if (!res.ok) {
-        throw new Error('Invalid credentials');
-      }
-      const data = await res.json();
-      dispatch({ type: 'LOGIN_SUCCESS', payload: data });
-      navigate('/');
-    } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err.message });
-    }
-  }
+    await login(username, password);
+  };
 
   return (
     <div className="flex justify-center items-center h-full">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow w-80 space-y-4">
         <h2 className="text-xl font-semibold text-center">Login</h2>
+        {error && <p className="text-red-500 text-sm text-center">{error}</p>}
         <div>
-          <label className="block text-sm font-medium mb-1">Username</label>
+          <label htmlFor="username-input" className="block text-sm font-medium mb-1">Username</label>
           <input
+            id="username-input"
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -45,8 +31,9 @@ export default function Login() {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium mb-1">Password</label>
+          <label htmlFor="password-input" className="block text-sm font-medium mb-1">Password</label>
           <input
+            id="password-input"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

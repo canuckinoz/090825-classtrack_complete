@@ -1,6 +1,5 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { GlobalProvider } from '../context/GlobalState';
 import QuickLog from '../features/quicklog/QuickLog';
 
 /**
@@ -10,11 +9,7 @@ import QuickLog from '../features/quicklog/QuickLog';
  * examine the UI to verify that the form clears after submission.
  */
 test('can log a behaviour via QuickLog', async () => {
-  render(
-    <GlobalProvider>
-      <QuickLog />
-    </GlobalProvider>
-  );
+  render(<QuickLog />);
 
   const studentInput = screen.getByLabelText(/student/i);
   const typeSelect = screen.getByLabelText(/type/i);

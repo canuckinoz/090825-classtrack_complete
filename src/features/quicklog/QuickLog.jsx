@@ -1,41 +1,26 @@
 import React, { useState } from 'react';
-import { useGlobalContext } from '../../context/GlobalState';
+import { useStore } from '../../state/useStore';
 
 /**
- * QuickLog provides a fast way to log behaviour within two clicks.  It
- * collects the minimal information necessary and dispatches an action
- * to add the log to the global state and persists it to the server.
+ * QuickLog provides a fast way to log behaviour. It uses the Zustand store
+ * to handle the logging logic and state updates.
  */
 export default function QuickLog() {
-  const { state, dispatch } = useGlobalContext();
+  const { addLog, error } = useStore();
   const [student, setStudent] = useState('');
   const [type, setType] = useState('positive');
   const [description, setDescription] = useState('');
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newLog = { student, type, description, timestamp: Date.now() };
-    try {
-      const response = await fetch('/api/logs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${state.token}`
-        },
-        body: JSON.stringify(newLog)
-      });
-      if (!response.ok) {
-        throw new Error('Failed to save log');
-      }
-      dispatch({ type: 'ADD_LOG', payload: newLog });
-      // clear form
+    await addLog(newLog);
+    if (!error) {
       setStudent('');
       setType('positive');
       setDescription('');
-    } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err.message });
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSubmit} className="p-4 bg-white rounded shadow space-y-4">
