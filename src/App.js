@@ -7,6 +7,8 @@ import ConstellationDashboard from "./features/constellation";
 import AnalyticsView from "./features/analytics";
 import QuickLog from "./features/quicklog";
 import Login from './features/Auth/Login';
+import RequireTeacherClass from './web/auth/RequireTeacherClass';
+import { AppMenu } from './web/nav/register';
 
 export default function App() {
   const { currentView, setView } = useStore();
@@ -33,7 +35,11 @@ export default function App() {
 
       {/* Content */}
       <main className="flex-1 p-4">
-        {currentView === "weather" && <WeatherDashboard />}
+        {currentView === "weather" && (
+          <RequireTeacherClass classId={'CLASS-3A'}>
+            <WeatherDashboard />
+          </RequireTeacherClass>
+        )}
         {currentView === "garden" && <GardenDashboard />}
         {currentView === "constellation" && <ConstellationDashboard />}
         {currentView === "analytics" && <AnalyticsView />}
