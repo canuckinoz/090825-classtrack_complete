@@ -8,4 +8,4 @@ Small classroom tracking app using React (CRA) and Express.
 
 ## Dev login
 On the login page, click "Use demo teacher" to sign in as a demo teacher for `CLASS-3A`. This calls `/dev-login` on the backend and redirects back to the app.
-This project is now deployed with Blitzy!
+This project is now deployed with Blitzy.
