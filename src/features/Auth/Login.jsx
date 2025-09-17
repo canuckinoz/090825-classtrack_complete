@@ -53,6 +53,15 @@ export default function Login() {
             className="w-full border border-gray-300 rounded px-2 py-1"
           />
         </div>
+        {process.env.NODE_ENV !== 'production' && (
+          <a
+            className="mt-3 inline-block rounded-md bg-blue-600 text-white px-3 py-2"
+            href="/dev-login?role=teacher&classId=CLASS-3A&redirect=/#/"
+            title="Logs you in as a teacher for CLASS-3A"
+          >
+            Use demo teacher
+          </a>
+        )}
         <button
           type="submit"
           className="w-full bg-primary-dark text-white py-2 rounded hover:bg-primary text-base font-medium"

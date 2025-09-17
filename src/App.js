@@ -5,6 +5,7 @@ import WeatherDashboard from "./features/weather";
 import GardenDashboard from "./features/garden";
 import ConstellationDashboard from "./features/constellation";
 import AnalyticsView from "./features/analytics";
+import ABCTracker from "./features/abc";
 import QuickLog from "./features/quicklog";
 import Login from './features/Auth/Login';
 import RequireTeacherClass from './web/auth/RequireTeacherClass';
@@ -28,6 +29,8 @@ export default function App() {
         <button onClick={()=>setView("garden")}>Student Garden</button>
         <button onClick={()=>setView("constellation")}>Constellation</button>
         <button onClick={()=>setView("analytics")}>Reports</button>
+        <button onClick={()=>setView("quicklog")}>Quick Log</button>
+        <button onClick={()=>setView("abc")}>ABC Tracker</button>
         <div className="ml-auto">
           <QuickLog.Trigger />{/* one‑click log from anywhere */}
         </div>
@@ -43,6 +46,8 @@ export default function App() {
         {currentView === "garden" && <GardenDashboard />}
         {currentView === "constellation" && <ConstellationDashboard />}
         {currentView === "analytics" && <AnalyticsView />}
+        {currentView === "quicklog" && <div className="rounded-xl bg-white p-6 shadow">Quick Log</div>}
+        {currentView === "abc" && <ABCTracker />}
       </main>
 
       {/* Floating QuickLog Trigger */}

@@ -25,3 +25,4 @@ function stripComparativeFields(data){
 module.exports = { requireRole, ensureClassInScope, stripComparativeFields };
 
 
+

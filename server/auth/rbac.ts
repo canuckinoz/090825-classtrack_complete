@@ -24,3 +24,4 @@ function bad(code:string){ const e:any = new Error(code); e.status=400; return e
 function forbidden(code:string){ const e:any = new Error(code); e.status=403; return e; }
 
 
+

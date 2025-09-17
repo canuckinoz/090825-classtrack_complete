@@ -36,6 +36,10 @@ function reducer(state, action) {
 
 export function GlobalProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
+  // E2E convenience: if a token is set on window, treat as logged in teacher
+  if (!state.token && typeof window !== 'undefined' && window.__E2E_AUTOLOGIN__) {
+    dispatch({ type: 'LOGIN_SUCCESS', payload: { user: { username: 'teacher' }, token: window.__E2E_AUTOLOGIN__ } });
+  }
   return (
     <GlobalContext.Provider value={{ state, dispatch }}>
       {children}
