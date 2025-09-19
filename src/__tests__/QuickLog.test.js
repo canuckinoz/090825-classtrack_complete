@@ -1,38 +1,43 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { GlobalProvider } from '../context/GlobalState';
-import QuickLog from '../features/QuickLog/QuickLog';
+import { useStore } from '../state/useStore';
+import QuickLog from '../features/quicklog';
+import axios from 'axios';
 
-/**
- * Tests for the QuickLog component.  Ensures that the form can be filled
- * out and that submitting dispatches an action which adds a log to the
- * global state.  Because the global provider uses a reducer, we can
- * examine the UI to verify that the form clears after submission.
- */
-test('can log a behaviour via QuickLog', async () => {
-  render(
-    <GlobalProvider>
-      <QuickLog />
-    </GlobalProvider>
-  );
+jest.mock('axios');
 
-  const studentInput = screen.getByLabelText(/student/i);
-  const typeSelect = screen.getByLabelText(/type/i);
-  const descriptionInput = screen.getByLabelText(/description/i);
-  const submitButton = screen.getByRole('button', { name: /log behaviour/i });
+const initialStoreState = useStore.getState();
 
-  // Fill out the form
-  fireEvent.change(studentInput, { target: { value: 'Alice' } });
-  fireEvent.change(typeSelect, { target: { value: 'positive' } });
-  fireEvent.change(descriptionInput, { target: { value: 'Helped a friend' } });
+describe('QuickLog', () => {
+  beforeEach(() => {
+    useStore.setState(initialStoreState);
+    axios.post.mockResolvedValue({ data: {} });
+  });
 
-  // Submit the form.  We mock fetch to immediately succeed.
-  global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
-  fireEvent.click(submitButton);
+  test('can log a behaviour via QuickLog', async () => {
+    render(<QuickLog.Trigger />);
 
-  // After submission the form inputs should be cleared
-  await waitFor(() => {
-    expect(studentInput.value).toBe('');
-    expect(descriptionInput.value).toBe('');
+    // Open the QuickLog overlay
+    fireEvent.click(screen.getByRole('button', { name: /log behaviour/i }));
+
+    // Select a student
+    const studentButton = await screen.findByText('Emma Thompson');
+    fireEvent.click(studentButton);
+
+    // Select a behaviour
+    const behaviourButton = await screen.findByText('Participation');
+    fireEvent.click(behaviourButton);
+
+    // The overlay should close after logging
+    await waitFor(() => {
+      expect(screen.queryByText('Who are you logging for?')).not.toBeInTheDocument();
+    });
+
+    // Verify that the addLog action was called (indirectly, via logBehaviour)
+    // and that the state has been updated.
+    const state = useStore.getState();
+    expect(state.behaviours.length).toBe(1);
+    expect(state.behaviours[0].studentId).toBe(1);
+    expect(state.behaviours[0].behaviourId).toBe(1);
   });
 });

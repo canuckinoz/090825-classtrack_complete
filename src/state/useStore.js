@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import axios from 'axios';
 
 // Minimal, safe defaults so nothing crashes while refactoring.
 const initialStudents = [
@@ -8,12 +9,21 @@ const initialStudents = [
 ];
 
 export const useStore = create((set, get) => ({
+  // Auth State
+  user: null,
+  token: null,
+  isAuthenticated: false,
+
   // UI
   currentView: "weather", // "weather" | "garden" | "constellation" | "analytics"
+  loading: false,
+  error: null,
   setView: (view) => set({ currentView: view }),
 
   // Data
   students: initialStudents,
+  logs: [],
+  predictions: {},
   behaviours: [],
 
   // QuickLog behaviour types (aligned with your non‑punitive design)
@@ -27,6 +37,53 @@ export const useStore = create((set, get) => ({
   ],
 
   // Actions
+  login: async (username, password) => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.post('/api/login', { username, password });
+      const { user, token } = res.data;
+      set({ user, token, isAuthenticated: true, loading: false });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      get().fetchLogs();
+    } catch (err) {
+      set({ error: 'Invalid credentials', loading: false });
+    }
+  },
+
+  logout: () => {
+    set({ user: null, token: null, isAuthenticated: false, logs: [], predictions: {} });
+    delete axios.defaults.headers.common['Authorization'];
+  },
+
+  fetchLogs: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.get('/api/logs');
+      set({ logs: res.data, loading: false });
+    } catch (err) {
+      set({ error: 'Failed to fetch logs', loading: false });
+    }
+  },
+
+  addLog: async (log) => {
+    try {
+      const res = await axios.post('/api/logs', log);
+      set((state) => ({ logs: [...state.logs, res.data] }));
+    } catch (err) {
+      set({ error: 'Failed to add log' });
+    }
+  },
+
+  fetchPredictions: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.get('/api/predictions');
+      set({ predictions: res.data, loading: false });
+    } catch (err) {
+      set({ error: 'Failed to fetch predictions', loading: false });
+    }
+  },
+
   logBehaviour: ({ studentId, behaviourId, note = "" }) => {
     const entry = { id: Date.now(), studentId, behaviourId, note, timestamp: new Date() };
     const behaviours = [...get().behaviours, entry];
@@ -39,11 +96,11 @@ export const useStore = create((set, get) => ({
     // tweak garden positiveRatio in memory (never punitive)
     const bt = get().behaviourTypes.find(b => b.id === behaviourId);
     const bump = bt?.type === "positive" ? +0.05 : bt?.type === "support" || bt?.type === "growth" ? -0.03 : 0;
-    const students2 = students.map(s =>
+    const updatedStudents = students.map(s =>
       s.id === studentId ? { ...s, positiveRatio: Math.max(0, Math.min(1, (s.positiveRatio ?? 0.5) + bump)) } : s
     );
 
-    set({ behaviours, students: students2 });
+    set({ behaviours, students: updatedStudents });
   },
 
   // Magic Moments (placeholder; plug real model later)

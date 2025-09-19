@@ -1,40 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useGlobalContext } from '../../context/GlobalState';
+import { useStore } from '../../state/useStore';
 
 /**
- * Login component for authenticating users.  It posts credentials to the
- * backend server and stores the returned token and user in the global state.
+ * Login component for authenticating users.  It uses the Zustand store
+ * for state management and authentication logic.
  */
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { dispatch } = useGlobalContext();
+  const { login, isAuthenticated, error } = useStore();
   const navigate = useNavigate();
 
-  async function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-      if (!res.ok) {
-        throw new Error('Invalid credentials');
-      }
-      const data = await res.json();
-      dispatch({ type: 'LOGIN_SUCCESS', payload: data });
-      navigate('/');
-    } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err.message });
+    login(username, password);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
     }
-  }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex justify-center items-center h-full">
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow w-80 space-y-4">
         <h2 className="text-xl font-semibold text-center">Login</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
           <input

@@ -1,48 +1,53 @@
 import React from 'react';
+import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import { useStore } from "./state/useStore";
-import { useGlobalContext } from './context/GlobalState';
 import WeatherDashboard from "./features/weather";
 import GardenDashboard from "./features/garden";
 import ConstellationDashboard from "./features/constellation";
 import AnalyticsView from "./features/analytics";
 import QuickLog from "./features/quicklog";
 import Login from './features/Auth/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
-export default function App() {
-  const { currentView, setView } = useStore();
-  // For now, we'll keep the old auth logic until we migrate it to Zustand
-  const { state } = useGlobalContext();
-  const isAuthenticated = !!state.token;
-
-  if (!isAuthenticated) {
-    return <Login />;
-  }
-
+const AppLayout = ({ children }) => {
+  const logout = useStore((state) => state.logout);
   return (
     <div className="min-h-screen flex flex-col bg-[color:var(--surface,#f7f9fc)]">
-      {/* Top Nav — keeps ≤2 clicks to log */}
       <nav className="bg-navy text-white px-4 py-2 flex items-center gap-4">
-        <button className="font-semibold" onClick={()=>setView("weather")}>Dashboard</button>
-        <button onClick={()=>setView("garden")}>Student Garden</button>
-        <button onClick={()=>setView("constellation")}>Constellation</button>
-        <button onClick={()=>setView("analytics")}>Reports</button>
-        <div className="ml-auto">
-          <QuickLog.Trigger />{/* one‑click log from anywhere */}
+        <NavLink to="/dashboard" className={({ isActive }) => (isActive ? "font-semibold" : "")}>Dashboard</NavLink>
+        <NavLink to="/garden" className={({ isActive }) => (isActive ? "font-semibold" : "")}>Student Garden</NavLink>
+        <NavLink to="/constellation" className={({ isActive }) => (isActive ? "font-semibold" : "")}>Constellation</NavLink>
+        <NavLink to="/analytics" className={({ isActive }) => (isActive ? "font-semibold" : "")}>Reports</NavLink>
+        <div className="ml-auto flex items-center gap-4">
+          <QuickLog.Trigger />
+          <button onClick={logout} className="text-sm">Logout</button>
         </div>
       </nav>
-
-      {/* Content */}
-      <main className="flex-1 p-4">
-        {currentView === "weather" && <WeatherDashboard />}
-        {currentView === "garden" && <GardenDashboard />}
-        {currentView === "constellation" && <ConstellationDashboard />}
-        {currentView === "analytics" && <AnalyticsView />}
-      </main>
-
-      {/* Floating QuickLog Trigger */}
-      <div className="fixed right-4 bottom-4 z-40">
-        <QuickLog.Trigger />
-      </div>
+      <main className="flex-1 p-4">{children}</main>
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/*"
+        element={
+          <ProtectedRoute>
+            <AppLayout>
+              <Routes>
+                <Route path="/dashboard" element={<WeatherDashboard />} />
+                <Route path="/garden" element={<GardenDashboard />} />
+                <Route path="/constellation" element={<ConstellationDashboard />} />
+                <Route path="/analytics" element={<AnalyticsView />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              </Routes>
+            </AppLayout>
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
   );
 }
