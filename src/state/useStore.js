@@ -51,12 +51,16 @@ export const useStore = create((set, get) => ({
     const { students, behaviourTypes } = get();
     if (!students.length) return [];
     const positives = behaviourTypes.filter(b => b.type === "positive");
-    return students.slice(0, 2).map(s => ({
-      studentId: s.id,
-      studentName: s.name,
-      behaviourId: positives[Math.floor(Math.random() * positives.length)].id,
-      behaviourName: positives[0].name,
-      confidence: Math.floor(70 + Math.random() * 30),
-    }));
+    if (!positives.length) return [];
+    return students.slice(0, 2).map(s => {
+      const selectedBehaviour = positives[Math.floor(Math.random() * positives.length)];
+      return {
+        studentId: s.id,
+        studentName: s.name,
+        behaviourId: selectedBehaviour.id,
+        behaviourName: selectedBehaviour.name,
+        confidence: Math.floor(70 + Math.random() * 30),
+      };
+    });
   },
 }));
