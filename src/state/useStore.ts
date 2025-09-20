@@ -15,6 +15,8 @@ export type StoreState = {
     hydrateFromStorage: () => { user: User | null; token: string | null };
   };
   students: Student[];
+  studentIndexById: Record<string | number, number>;
+  studentsVersion: number;
   behaviours: BehaviourLog[];
   behaviourTypes: {
     id: number;
@@ -35,6 +37,9 @@ export type StoreState = {
     behaviourName: string;
     confidence: number;
   }[];
+  // memoised selectors
+  getStudentsArray: () => Student[];
+  getStudentById: (id: Student['id']) => Student | undefined;
   bootstrapApp: () => Promise<boolean>;
 };
 
@@ -62,132 +67,170 @@ const initialStudents: Student[] = [
   },
 ];
 
+function buildIndex(students: Student[]): Record<string | number, number> {
+  const map: Record<string | number, number> = {};
+  for (let i = 0; i < students.length; i++) map[students[i].id] = i;
+  return map;
+}
+
 export const useStore = create<StoreState>()(
   persist(
-    (set, get) => ({
-      ui: {},
-      auth: {
-        user: null,
-        token: null,
-        async login({ username, password }) {
-          const res = await fetch('/api/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+    (set, get) => {
+      // memo cache
+      let memoStudents: { version: number; value: Student[] } = {
+        version: -1,
+        value: [],
+      };
+
+      return {
+        ui: {},
+        auth: {
+          user: null,
+          token: null,
+          async login({ username, password }) {
+            const res = await fetch('/api/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: username, password }),
+            });
+            if (!res.ok) throw new Error('Invalid credentials');
+            const data = (await res.json()) as { user: User; token: string };
+            set((state) => ({
+              auth: { ...state.auth, user: data.user, token: data.token },
+            }));
+            return data;
+          },
+          logout() {
+            set((state) => ({
+              auth: { ...state.auth, user: null, token: null },
+            }));
+          },
+          hydrateFromStorage() {
+            return get().auth;
+          },
+        },
+        students: initialStudents,
+        studentIndexById: buildIndex(initialStudents),
+        studentsVersion: 0,
+        behaviours: [],
+        behaviourTypes: [
+          {
+            id: 1,
+            name: 'Participation',
+            type: 'positive',
+            color: '#4A7C59',
+            icon: '✋',
+          },
+          {
+            id: 2,
+            name: 'Helping Others',
+            type: 'positive',
+            color: '#673AB7',
+            icon: '🤝',
+          },
+          {
+            id: 3,
+            name: 'Problem Solving',
+            type: 'positive',
+            color: '#1976D2',
+            icon: '🧩',
+          },
+          {
+            id: 4,
+            name: 'Needs Movement',
+            type: 'support',
+            color: '#FF9800',
+            icon: '🏃',
+          },
+          {
+            id: 5,
+            name: 'Feeling Overwhelmed',
+            type: 'support',
+            color: '#E91E63',
+            icon: '🌊',
+          },
+          {
+            id: 6,
+            name: 'Conflict Resolution',
+            type: 'growth',
+            color: '#9C27B0',
+            icon: '🤝',
+          },
+        ],
+        logBehaviour: ({ studentId, behaviourId, note = '' }) => {
+          const now = Date.now();
+          set((state) => {
+            const entry: BehaviourLog = {
+              id: now,
+              studentId,
+              behaviourId,
+              note,
+              timestamp: new Date(),
+            };
+            const newBehaviours = state.behaviours.concat(entry);
+
+            const idx = state.studentIndexById[studentId as any];
+            if (idx === undefined)
+              return { behaviours: newBehaviours } as Partial<StoreState>;
+
+            const students = state.students.slice();
+            const current = students[idx];
+            const bt = state.behaviourTypes.find(
+              (b) => b.id === Number(behaviourId)
+            );
+            const bump =
+              bt?.type === 'positive'
+                ? +0.05
+                : bt?.type === 'support' || bt?.type === 'growth'
+                  ? -0.03
+                  : 0;
+            const nextRatio = Math.max(
+              0,
+              Math.min(1, (current.positiveRatio ?? 0.5) + bump)
+            );
+            students[idx] = {
+              ...current,
+              recentActivity: 'recent',
+              positiveRatio: nextRatio,
+            };
+
+            return {
+              behaviours: newBehaviours,
+              students,
+              studentsVersion: state.studentsVersion + 1,
+            } as Partial<StoreState>;
           });
-          if (!res.ok) throw new Error('Invalid credentials');
-          const data = (await res.json()) as { user: User; token: string };
-          set((state) => ({
-            auth: { ...state.auth, user: data.user, token: data.token },
+        },
+        getPredictedActions: () => {
+          const { students, behaviourTypes } = get();
+          if (!students.length) return [];
+          const positives = behaviourTypes.filter((b) => b.type === 'positive');
+          return students.slice(0, 2).map((s) => ({
+            studentId: s.id,
+            studentName: s.name,
+            behaviourId:
+              positives[Math.floor(Math.random() * positives.length)].id,
+            behaviourName: positives[0].name,
+            confidence: Math.floor(70 + Math.random() * 30),
           }));
-          return data;
         },
-        logout() {
-          set((state) => ({
-            auth: { ...state.auth, user: null, token: null },
-          }));
+        getStudentsArray: () => {
+          const { studentsVersion, students } = get();
+          if (memoStudents.version !== studentsVersion) {
+            memoStudents = { version: studentsVersion, value: students };
+          }
+          return memoStudents.value;
         },
-        hydrateFromStorage() {
-          return get().auth;
+        getStudentById: (id) => {
+          const { studentIndexById, students } = get();
+          const idx = studentIndexById[id as any];
+          return idx === undefined ? undefined : students[idx];
         },
-      },
-      students: initialStudents,
-      behaviours: [],
-      behaviourTypes: [
-        {
-          id: 1,
-          name: 'Participation',
-          type: 'positive',
-          color: '#4A7C59',
-          icon: '✋',
+        async bootstrapApp() {
+          return true;
         },
-        {
-          id: 2,
-          name: 'Helping Others',
-          type: 'positive',
-          color: '#673AB7',
-          icon: '🤝',
-        },
-        {
-          id: 3,
-          name: 'Problem Solving',
-          type: 'positive',
-          color: '#1976D2',
-          icon: '🧩',
-        },
-        {
-          id: 4,
-          name: 'Needs Movement',
-          type: 'support',
-          color: '#FF9800',
-          icon: '🏃',
-        },
-        {
-          id: 5,
-          name: 'Feeling Overwhelmed',
-          type: 'support',
-          color: '#E91E63',
-          icon: '🌊',
-        },
-        {
-          id: 6,
-          name: 'Conflict Resolution',
-          type: 'growth',
-          color: '#9C27B0',
-          icon: '🤝',
-        },
-      ],
-      logBehaviour: ({ studentId, behaviourId, note = '' }) => {
-        const entry: BehaviourLog = {
-          id: Date.now(),
-          studentId,
-          behaviourId,
-          note,
-          timestamp: new Date(),
-        };
-        const behaviours = [...get().behaviours, entry];
-        const students = get().students.map((s) =>
-          s.id === studentId ? { ...s, recentActivity: 'recent' } : s
-        );
-        const bt = get().behaviourTypes.find(
-          (b) => b.id === Number(behaviourId)
-        );
-        const bump =
-          bt?.type === 'positive'
-            ? +0.05
-            : bt?.type === 'support' || bt?.type === 'growth'
-              ? -0.03
-              : 0;
-        const students2 = students.map((s) =>
-          s.id === studentId
-            ? {
-                ...s,
-                positiveRatio: Math.max(
-                  0,
-                  Math.min(1, (s.positiveRatio ?? 0.5) + bump)
-                ),
-              }
-            : s
-        );
-        set({ behaviours, students: students2 });
-      },
-      getPredictedActions: () => {
-        const { students, behaviourTypes } = get();
-        if (!students.length) return [];
-        const positives = behaviourTypes.filter((b) => b.type === 'positive');
-        return students.slice(0, 2).map((s) => ({
-          studentId: s.id,
-          studentName: s.name,
-          behaviourId:
-            positives[Math.floor(Math.random() * positives.length)].id,
-          behaviourName: positives[0].name,
-          confidence: Math.floor(70 + Math.random() * 30),
-        }));
-      },
-      async bootstrapApp() {
-        return true;
-      },
-    }),
+      };
+    },
     { name: 'classtrack-store', partialize: (state) => ({ auth: state.auth }) }
   )
 );

@@ -5,25 +5,96 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const { rateLimit } = require('express-rate-limit');
 const { requireTeacherClassParam } = require('./auth/middleware');
 const { stripComparativeFields } = require('./auth/rbac');
 const { seedTeacher } = require('./dev/seedTeacher');
 const { devLoginRouter } = require('./auth/devLogin');
 const errorHandler = require('./middleware/errorHandler');
+const { prisma } = require('./db/prisma');
+const {
+  loginSchema,
+  createLogSchema,
+  validate,
+} = require('./validation/schemas');
 
 function buildApp() {
   const app = express();
   const JWT_SECRET = process.env.JWT_SECRET;
 
   app.set('trust proxy', 1);
-  app.use(helmet());
+
+  // CORS: allow only known dev origins; allow requests without Origin (server-to-server/tests)
+  const defaultAllowedOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+  ];
+  const envOrigins = (
+    process.env.CORS_ORIGINS ||
+    process.env.FRONTEND_ORIGIN ||
+    ''
+  )
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const allowedOrigins =
+    envOrigins.length > 0 ? envOrigins : defaultAllowedOrigins;
   app.use(
     cors({
-      origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+      origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error('Not allowed by CORS'));
+      },
       credentials: true,
     })
   );
+
+  // Core security headers via Helmet
+  app.use(helmet.noSniff());
+  app.use(helmet.frameguard({ action: 'deny' }));
+  app.use(helmet.referrerPolicy({ policy: 'no-referrer' }));
+
+  // Strict Content Security Policy (mostly relevant if HTML is ever served)
+  const imgSrcList = (process.env.CSP_IMG_SRC || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const connectSrcList = (process.env.CSP_CONNECT_SRC || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const cspDirectives = {
+    defaultSrc: ["'none'"],
+    baseUri: ["'none'"],
+    formAction: ["'none'"],
+    frameAncestors: ["'none'"],
+    imgSrc: ["'self'", 'data:', ...imgSrcList],
+    scriptSrc: ["'self'"],
+    styleSrc: ["'self'"],
+    connectSrc: ["'self'", ...connectSrcList],
+    objectSrc: ["'none'"],
+    upgradeInsecureRequests: [],
+  };
+  app.use(helmet.contentSecurityPolicy({ directives: cspDirectives }));
+
+  // Permissions-Policy: deny sensitive features by default
+  const permissionsPolicy = [
+    'geolocation=()',
+    'camera=()',
+    'microphone=()',
+    'payment=()',
+    'accelerometer=()',
+    'gyroscope=()',
+    'magnetometer=()',
+    'usb=()',
+    'interest-cohort=()',
+  ].join(', ');
+  app.use((req, res, next) => {
+    res.setHeader('Permissions-Policy', permissionsPolicy);
+    next();
+  });
   app.use(bodyParser.json());
   app.use(
     session({
@@ -34,7 +105,13 @@ function buildApp() {
     })
   );
 
-  const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
+  const authLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 10,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { ok: false, error: 'too_many_requests' },
+  });
   app.use('/api/login', authLimiter);
   app.use('/api/register', authLimiter);
 
@@ -42,9 +119,11 @@ function buildApp() {
 
   // Test helper: allow injecting a mock user via header
   app.use((req, _res, next) => {
-    const mock = req.headers['x-mock-user'];
-    if (mock) {
+    const mockHeader = req.headers['x-mock-user'];
+    const mock = Array.isArray(mockHeader) ? mockHeader[0] : mockHeader;
+    if (typeof mock === 'string') {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         req.user = JSON.parse(mock);
       } catch (_e) {}
     }
@@ -55,29 +134,14 @@ function buildApp() {
   app.use(async (req, _res, next) => {
     if (process.env.NODE_ENV !== 'production' && !req.user) {
       const seeded = await seedTeacher();
-      req.user = seeded;
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      req.user = /** @type {any} */ (seeded);
       global.DEV_USER = seeded;
     }
     next();
   });
 
-  // In-memory storage for demo purposes
-  const users = {
-    demo: {
-      username: 'demo',
-      password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-    },
-    teacher: {
-      username: 'teacher',
-      password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-    },
-    admin: {
-      username: 'admin',
-      password: '$2b$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
-    },
-  };
-  const logs = [];
-
+  // DB-backed
   function authenticateToken(req, res, next) {
     if (req.user) return next(); // mock injected
     const authHeader = req.headers['authorization'] || '';
@@ -93,7 +157,8 @@ function buildApp() {
         role = 'teacher';
         scope = { classIds: ['CLASS-3A', 'CLASS-5B'] };
       }
-      req.user = { id: user.username, role, scope };
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      req.user = /** @type {any} */ ({ id: user.username, role, scope });
       next();
     });
   }
@@ -101,38 +166,47 @@ function buildApp() {
   // Auth
   app.post('/api/register', async (req, res, next) => {
     try {
-      const { username, password } = req.body;
-      if (!username || !password)
+      const { email, password, name, role = 'teacher' } = req.body;
+      if (!email || !password || !name)
         return res
           .status(400)
           .json({ ok: false, error: 'Missing credentials' });
-      if (users[username])
+      const exists = await prisma.user.findUnique({ where: { email } });
+      if (exists)
         return res
           .status(409)
           .json({ ok: false, error: 'User already exists' });
       const hashed = await bcrypt.hash(password, 10);
-      users[username] = { username, password: hashed };
+      await prisma.user.create({
+        data: { email, passwordHash: hashed, name, role },
+      });
       res.status(201).json({ ok: true, message: 'User registered' });
     } catch (err) {
       next(err);
     }
   });
 
-  app.post('/api/login', async (req, res, next) => {
+  app.post('/api/login', validate(loginSchema), async (req, res, next) => {
     try {
-      const { username, password } = req.body;
-      const user = users[username];
+      const { email, password } = req.body;
+      const user = await prisma.user.findUnique({ where: { email } });
       if (!user)
         return res
           .status(401)
           .json({ ok: false, error: 'Invalid credentials' });
-      const match = await bcrypt.compare(password, user.password);
+      const match = await bcrypt.compare(password, user.passwordHash);
       if (!match)
         return res
           .status(401)
           .json({ ok: false, error: 'Invalid credentials' });
-      const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
-      res.json({ ok: true, user: { username }, token });
+      const token = jwt.sign({ username: user.email }, JWT_SECRET, {
+        expiresIn: '1h',
+      });
+      res.json({
+        ok: true,
+        user: { username: user.email, name: user.name, role: user.role },
+        token,
+      });
     } catch (err) {
       next(err);
     }
@@ -147,12 +221,38 @@ function buildApp() {
   });
 
   // Logs
-  app.get('/api/logs', authenticateToken, (req, res) => res.json(logs));
-  app.post('/api/logs', authenticateToken, (req, res) => {
-    const log = { ...req.body, user: req.user.id };
-    logs.push(log);
-    res.status(201).json(log);
+  app.get('/api/logs', authenticateToken, async (req, res, next) => {
+    try {
+      const data = await prisma.behaviourLog.findMany({
+        include: { student: true, author: true },
+        orderBy: { id: 'desc' },
+      });
+      res.json({ ok: true, logs: data });
+    } catch (e) {
+      next(e);
+    }
   });
+  app.post(
+    '/api/logs',
+    authenticateToken,
+    validate(createLogSchema),
+    async (req, res, next) => {
+      try {
+        const { studentId, type, note } = req.body;
+        const created = await prisma.behaviourLog.create({
+          data: {
+            studentId: Number(studentId),
+            authorUserId: Number(req.user.id) || 1,
+            type,
+            note,
+          },
+        });
+        res.status(201).json({ ok: true, log: created });
+      } catch (e) {
+        next(e);
+      }
+    }
+  );
 
   // Forecast (for API test)
   app.post(
