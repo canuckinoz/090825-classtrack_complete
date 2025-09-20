@@ -1,36 +1,38 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import QuickLog from '../features/QuickLog/QuickLog';
+import { render, screen, fireEvent } from '@testing-library/react';
+import QuickLog from '../features/quicklog';
+import { useStore } from '../state/useStore';
 
-/**
- * Tests for the QuickLog component.  Ensures that the form can be filled
- * out and that submitting dispatches an action which adds a log to the
- * store. We verify the UI clears after submission.
- */
-test('can log a behaviour via QuickLog', async () => {
-  render(<QuickLog />);
+test('opens QuickLog overlay and logs a behaviour', () => {
+  // Arrange: stub logBehaviour so we can assert it was called
+  const original = useStore.getState().logBehaviour;
+  const spy = jest.fn();
+  useStore.setState({ logBehaviour: spy });
 
-  const studentInput = screen.getByLabelText(/student/i);
-  const typeSelect = screen.getByLabelText(/type/i);
-  const descriptionInput = screen.getByLabelText(/description/i);
-  const submitButton = screen.getByRole('button', { name: /log behaviour/i });
+  render(<QuickLog.Trigger />);
 
-  // Fill out the form
-  fireEvent.change(studentInput, { target: { value: 'Alice' } });
-  fireEvent.change(typeSelect, { target: { value: 'positive' } });
-  fireEvent.change(descriptionInput, { target: { value: 'Helped a friend' } });
+  // Open overlay
+  fireEvent.click(screen.getByRole('button', { name: /log behaviour/i }));
 
-  // Submit the form.  We mock fetch to immediately succeed.
-  global.fetch = jest.fn(() =>
-    Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
-  );
-  fireEvent.click(submitButton);
+  // Click the first student tile
+  const studentButtons = screen.getAllByRole('button');
+  // The first button is the close ×; Trigger button is not in overlay tree now.
+  // Find a student tile by looking for two-letter initials element text length 2
+  const studentTile =
+    studentButtons.find((b) => (b.textContent || '').trim().length === 2) ||
+    studentButtons[1];
+  fireEvent.click(studentTile);
 
-  // After submission the form inputs should be cleared
-  await waitFor(() => {
-    expect(studentInput.value).toBe('');
-  });
-  await waitFor(() => {
-    expect(descriptionInput.value).toBe('');
-  });
+  // Click the first behaviour type button
+  const behaviourButtons = screen.getAllByRole('button');
+  const behaviourBtn =
+    behaviourButtons.find((b) =>
+      /positive|support|growth/i.test(b.textContent || '')
+    ) || behaviourButtons[0];
+  fireEvent.click(behaviourBtn);
+
+  expect(spy).toHaveBeenCalled();
+
+  // Cleanup
+  useStore.setState({ logBehaviour: original });
 });
