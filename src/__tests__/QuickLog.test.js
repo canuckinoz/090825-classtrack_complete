@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { GlobalProvider } from '../context/GlobalState';
-import QuickLog from '../features/QuickLog/QuickLog';
+import { useStore } from '../state/useStore';
+import QuickLog from '../features/quicklog';
 
 /**
  * Tests for the QuickLog component.  Ensures that the form can be filled
@@ -10,10 +10,12 @@ import QuickLog from '../features/QuickLog/QuickLog';
  * examine the UI to verify that the form clears after submission.
  */
 test('can log a behaviour via QuickLog', async () => {
+  const { logBehaviour } = useStore.getState();
+  const logBehaviourMock = jest.fn(logBehaviour);
+  useStore.setState({ logBehaviour: logBehaviourMock });
+
   render(
-    <GlobalProvider>
       <QuickLog />
-    </GlobalProvider>
   );
 
   const studentInput = screen.getByLabelText(/student/i);
@@ -26,13 +28,19 @@ test('can log a behaviour via QuickLog', async () => {
   fireEvent.change(typeSelect, { target: { value: 'positive' } });
   fireEvent.change(descriptionInput, { target: { value: 'Helped a friend' } });
 
-  // Submit the form.  We mock fetch to immediately succeed.
-  global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+  // Submit the form.
   fireEvent.click(submitButton);
 
   // After submission the form inputs should be cleared
   await waitFor(() => {
     expect(studentInput.value).toBe('');
     expect(descriptionInput.value).toBe('');
+  });
+
+  // Check that the logBehaviour action was called
+  expect(logBehaviourMock).toHaveBeenCalledWith({
+    studentId: 'Alice',
+    behaviourId: 'positive',
+    note: 'Helped a friend',
   });
 });

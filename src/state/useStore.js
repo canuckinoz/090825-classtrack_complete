@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import axios from 'axios';
 
 // Minimal, safe defaults so nothing crashes while refactoring.
 const initialStudents = [
@@ -8,12 +9,49 @@ const initialStudents = [
 ];
 
 export const useStore = create((set, get) => ({
+  // Auth
+  user: JSON.parse(localStorage.getItem('user')),
+  token: localStorage.getItem('token'),
+  error: null,
+  login: async (username, password) => {
+    try {
+      const { data } = await axios.post('/api/login', { username, password });
+      set({ user: data.user, token: data.token, error: null });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      get().fetchData();
+    } catch (error) {
+      set({ error: 'Failed to login. Please check your credentials.' });
+    }
+  },
+  devLogin: async (username) => {
+    try {
+      const { data } = await axios.post(`/api/dev-login`, { username });
+      set({ user: data.user, token: data.token, error: null });
+      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('token', data.token);
+      get().fetchData();
+    } catch (error) {
+      set({ error: 'Failed to login. Please check your credentials.' });
+    }
+  },
+  logout: () => {
+    set({ user: null, token: null, logs: [], predictions: {}, error: null });
+    delete axios.defaults.headers.common['Authorization'];
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+  },
+
   // UI
   currentView: "weather", // "weather" | "garden" | "constellation" | "analytics"
   setView: (view) => set({ currentView: view }),
 
   // Data
   students: initialStudents,
+  logs: [],
+  predictions: {},
   behaviours: [],
 
   // QuickLog behaviour types (aligned with your non‑punitive design)
@@ -27,6 +65,15 @@ export const useStore = create((set, get) => ({
   ],
 
   // Actions
+  fetchData: async () => {
+    try {
+      const { data: logs } = await axios.get('/api/logs');
+      const { data: predictions } = await axios.get('/api/predictions');
+      set({ logs, predictions });
+    } catch (error) {
+      set({ error: 'Failed to fetch data.' });
+    }
+  },
   logBehaviour: ({ studentId, behaviourId, note = "" }) => {
     const entry = { id: Date.now(), studentId, behaviourId, note, timestamp: new Date() };
     const behaviours = [...get().behaviours, entry];

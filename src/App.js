@@ -1,48 +1,80 @@
 import React from 'react';
-import { useStore } from "./state/useStore";
-import { useGlobalContext } from './context/GlobalState';
-import WeatherDashboard from "./features/weather";
-import GardenDashboard from "./features/garden";
-import ConstellationDashboard from "./features/constellation";
-import AnalyticsView from "./features/analytics";
-import QuickLog from "./features/quicklog";
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { useStore } from './state/useStore';
+import Layout from './components/Layout';
 import Login from './features/Auth/Login';
+import WeatherDashboard from './features/weather';
+import GardenDashboard from './features/garden';
+import ConstellationDashboard from './features/constellation';
+import AnalyticsView from './features/analytics';
 
-export default function App() {
-  const { currentView, setView } = useStore();
-  // For now, we'll keep the old auth logic until we migrate it to Zustand
-  const { state } = useGlobalContext();
-  const isAuthenticated = !!state.token;
+const PrivateRoute = ({ children, scope }) => {
+  const { user } = useStore();
 
-  if (!isAuthenticated) {
-    return <Login />;
+  const hasScope = (requiredScope) => {
+    if (user && user.scope) {
+      return user.scope.includes('*') || user.scope.includes(requiredScope);
+    }
+    return false;
+  };
+
+  if (!user) {
+    return <Navigate to="/login" />;
   }
 
+  if (scope && !hasScope(scope)) {
+    return <Navigate to="/" />;
+  }
+
+  return children;
+};
+
+export default function App() {
+  const { user } = useStore();
+
   return (
-    <div className="min-h-screen flex flex-col bg-[color:var(--surface,#f7f9fc)]">
-      {/* Top Nav — keeps ≤2 clicks to log */}
-      <nav className="bg-navy text-white px-4 py-2 flex items-center gap-4">
-        <button className="font-semibold" onClick={()=>setView("weather")}>Dashboard</button>
-        <button onClick={()=>setView("garden")}>Student Garden</button>
-        <button onClick={()=>setView("constellation")}>Constellation</button>
-        <button onClick={()=>setView("analytics")}>Reports</button>
-        <div className="ml-auto">
-          <QuickLog.Trigger />{/* one‑click log from anywhere */}
-        </div>
-      </nav>
-
-      {/* Content */}
-      <main className="flex-1 p-4">
-        {currentView === "weather" && <WeatherDashboard />}
-        {currentView === "garden" && <GardenDashboard />}
-        {currentView === "constellation" && <ConstellationDashboard />}
-        {currentView === "analytics" && <AnalyticsView />}
-      </main>
-
-      {/* Floating QuickLog Trigger */}
-      <div className="fixed right-4 bottom-4 z-40">
-        <QuickLog.Trigger />
-      </div>
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout>
+              <WeatherDashboard />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/garden"
+        element={
+          <PrivateRoute scope="garden">
+            <Layout>
+              <GardenDashboard />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/constellation"
+        element={
+          <PrivateRoute scope="constellation">
+            <Layout>
+              <ConstellationDashboard />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/reports"
+        element={
+          <PrivateRoute scope="analytics">
+            <Layout>
+              <AnalyticsView />
+            </Layout>
+          </PrivateRoute>
+        }
+      />
+    </Routes>
   );
 }
