@@ -1,3 +1,4 @@
+/* eslint-disable testing-library/prefer-screen-queries */
 import { test, expect } from '@playwright/test';
 
 test('teacher sees only class features', async ({ page }) => {
@@ -6,5 +7,3 @@ test('teacher sees only class features', async ({ page }) => {
   await expect(page.getByText('ABC Tracker')).toBeVisible();
   await expect(page.getByText('AI Dashboard')).toBeHidden();
 });
-
-

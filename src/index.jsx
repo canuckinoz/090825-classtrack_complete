@@ -12,9 +12,7 @@ if (container) {
     </React.StrictMode>
   );
 } else {
-  console.error("Failed to find the root element. Please ensure your HTML has an element with id='root'.");
+  console.error(
+    "Failed to find the root element. Please ensure your HTML has an element with id='root'."
+  );
 }
-
-
-
-

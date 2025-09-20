@@ -1,1 +1,637 @@
-import{r as l,j as e}from"./ui-vendor-D6t9Fqz9.js";import{u as O}from"./index-DxxIEH0w.js";import"./react-vendor-DTDVRx5A.js";import"./data-vendor-CMp-lYVg.js";const y={learning:{name:"Learning & Academic Strengths",icon:"🎓",color:"blue",strengths:["Curious and eager to learn","Focused and attentive","Quick to understand concepts","Good problem solver","Creative thinker","Excellent memory","Strong work ethic","Independent learner"]},social:{name:"Social & Emotional Strengths",icon:"🤝",color:"green",strengths:["Kind and compassionate","Good listener","Helpful to peers","Respectful to others","Good communicator","Empathetic","Team player","Leadership potential"]},character:{name:"Character & Personal Strengths",icon:"⭐",color:"purple",strengths:["Honest and trustworthy","Responsible","Resilient","Confident","Patient","Determined","Positive attitude","Self-motivated"]},creative:{name:"Creative & Practical Strengths",icon:"🎨",color:"pink",strengths:["Creative and imaginative","Artistic talent","Musical ability","Good with hands","Innovative thinker","Practical problem solver","Organized and methodical","Resourceful"]}};function F(){const{selectedClassId:m,user:w}=O(),[i,C]=l.useState(null),[g,x]=l.useState([]),[d,p]=l.useState({}),[o,R]=l.useState(null),[E,j]=l.useState(!1),[k,N]=l.useState(!1),[u,c]=l.useState("");l.useEffect(()=>{m&&L()},[m]);const L=async()=>{try{j(!0);const t=await fetch(`/api/classes/${m}/students`,{method:"GET",headers:{"Content-Type":"application/json"}});if(t.ok){const s=await t.json();x(s.students||[])}else{console.warn("Failed to load students, using mock data");const s=Array.from({length:8},(r,a)=>({id:`student-${a+1}`,name:["Emma Johnson","Liam Smith","Olivia Brown","Noah Davis","Ava Wilson","Mason Taylor","Sophia Anderson","Ethan Thomas"][a],gradeLevel:["Grade 3","Grade 4","Grade 5","Grade 2","Grade 3","Grade 4","Grade 5","Grade 2"][a],positiveRatio:Math.random()*.4+.4}));x(s)}}catch(t){console.error("Error loading students:",t),x([])}finally{j(!1)}},G=async t=>{try{N(!0);const s=await fetch(`/api/student-strengths/${t}`,{method:"GET",headers:{"Content-Type":"application/json"}});if(s.ok){const r=await s.json();p(r.strengths||{}),b(r.strengths||{})}else{const r=S();p(r),b(r)}}catch(s){console.error("Error analyzing strengths:",s);const r=S();p(r),b(r)}finally{N(!1)}},S=()=>{const t={};return Object.keys(y).forEach(s=>{const r=y[s].strengths,a=Math.floor(Math.random()*3)+2,n=r.sort(()=>Math.random()-.5).slice(0,a);t[s]=n.map(M=>({text:M,confidence:Math.random()*.3+.7,evidence:`Demonstrated through ${Math.floor(Math.random()*15)+5} positive behaviors`}))}),t},b=t=>{const s=g.find(a=>a.id===i);if(!s)return;const r={studentName:s.name,gradeLevel:s.gradeLevel,generatedBy:w?.name||"Teacher",generatedDate:new Date().toLocaleDateString(),schoolYear:new Date().getFullYear(),strengths:t,summary:T(t),recommendations:$(t),positiveRatio:s.positiveRatio||.65};R(r)},T=t=>{const r=Object.values(t).flat().sort((a,n)=>n.confidence-a.confidence).slice(0,3);return`${i?g.find(a=>a.id===i)?.name:"The student"} demonstrates exceptional strengths in ${r.length} key areas. They consistently show ${r[0]?.text.toLowerCase()} and have a strong capacity for ${r[1]?.text.toLowerCase()}. Their ability to ${r[2]?.text.toLowerCase()} makes them a valuable member of the classroom community.`},$=t=>{const s=[],r=Object.values(t).flat();return r.some(a=>a.text.includes("leadership"))&&s.push("Consider leadership roles in group activities"),r.some(a=>a.text.includes("creative"))&&s.push("Encourage participation in creative projects and arts"),r.some(a=>a.text.includes("team player"))&&s.push("Pair with peers who could benefit from their collaborative skills"),r.some(a=>a.text.includes("independent"))&&s.push("Provide opportunities for independent learning tasks"),s.length>0?s:["Continue to nurture and develop these emerging strengths","Provide opportunities to apply these strengths in new contexts","Share these positive qualities with the student to build self-awareness"]},v=async(t="pdf")=>{try{c("Generating report...");const s=await fetch("/api/export-strength-report",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({reportData:o,format:t})});if(s.ok){const r=await s.blob(),a=window.URL.createObjectURL(r),n=document.createElement("a");n.href=a,n.download=`strength-report-${o.studentName.replace(/\s+/g,"-").toLowerCase()}.${t}`,document.body.appendChild(n),n.click(),window.URL.revokeObjectURL(a),document.body.removeChild(n),c("✅ Report exported successfully!")}else c("❌ Failed to export report.")}catch(s){console.error("Export failed:",s),c("❌ Error exporting report.")}finally{setTimeout(()=>c(""),3e3)}},h=t=>{const s=Object.values(t).flat(),r=s.reduce((a,n)=>a+n.confidence,0)/s.length;return Math.round(r*100)},f=t=>t>=90?{level:"Exceptional",color:"text-green-600",bgColor:"bg-green-100"}:t>=80?{level:"Strong",color:"text-blue-600",bgColor:"bg-blue-100"}:t>=70?{level:"Developing",color:"text-yellow-600",bgColor:"bg-yellow-100"}:{level:"Emerging",color:"text-purple-600",bgColor:"bg-purple-100"};return E?e.jsx("div",{className:"min-h-[60vh] rounded-xl p-8 bg-white border-2 border-dashed border-gray-300 flex items-center justify-center","data-ct":"strength-reports",children:e.jsxs("div",{className:"text-center",children:[e.jsx("div",{className:"text-6xl mb-4",children:"🌟"}),e.jsx("h3",{className:"text-xl font-semibold text-gray-900 mb-2",children:"Loading Strength Reports..."}),e.jsx("p",{className:"text-gray-600",children:"Preparing positive insights for your students."})]})}):e.jsxs("div",{className:"min-h-[60vh] rounded-xl p-8 bg-white border border-gray-200","data-ct":"strength-reports",children:[e.jsxs("div",{className:"mb-8",children:[e.jsx("h2",{className:"text-2xl font-semibold text-gray-900 mb-2",children:"🌟 Strength Reports"}),e.jsx("p",{className:"text-gray-600",children:"Build positive, strength-based reports that celebrate student achievements and potential."})]}),e.jsxs("div",{className:"grid grid-cols-1 lg:grid-cols-3 gap-8",children:[e.jsx("div",{className:"lg:col-span-1",children:e.jsxs("div",{className:"bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200",children:[e.jsx("h3",{className:"text-lg font-semibold text-gray-900 mb-4",children:"Select Student"}),e.jsx("div",{className:"space-y-2",children:g.map(t=>e.jsxs("button",{onClick:()=>{C(t.id),G(t.id)},className:`w-full text-left p-3 rounded-lg transition-colors ${i===t.id?"bg-blue-100 border-2 border-blue-300 text-blue-900":"bg-white hover:bg-gray-50 border border-gray-200 text-gray-700"}`,children:[e.jsx("div",{className:"font-medium",children:t.name}),e.jsx("div",{className:"text-sm text-gray-500",children:t.gradeLevel}),t.positiveRatio&&e.jsxs("div",{className:"text-sm text-green-600",children:[Math.round(t.positiveRatio*100),"% positive behaviors"]})]},t.id))})]})}),e.jsx("div",{className:"lg:col-span-2",children:i?k?e.jsxs("div",{className:"bg-gray-50 rounded-lg p-8 text-center",children:[e.jsx("div",{className:"text-4xl mb-4",children:"🔍"}),e.jsx("h3",{className:"text-xl font-semibold text-gray-900 mb-2",children:"Analyzing Strengths..."}),e.jsx("p",{className:"text-gray-600",children:"We're identifying this student's unique strengths and positive qualities."})]}):o?e.jsxs("div",{className:"space-y-6",children:[e.jsxs("div",{className:"bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6",children:[e.jsx("h3",{className:"text-2xl font-bold mb-2",children:o.studentName}),e.jsx("p",{className:"text-lg opacity-90",children:o.gradeLevel}),e.jsxs("div",{className:"mt-4 flex items-center gap-4",children:[e.jsxs("div",{className:"text-center",children:[e.jsxs("div",{className:"text-2xl font-bold",children:[h(d),"%"]}),e.jsx("div",{className:"text-sm opacity-90",children:"Strength Score"})]}),e.jsxs("div",{className:"text-center",children:[e.jsxs("div",{className:"text-2xl font-bold",children:[Math.round(o.positiveRatio*100),"%"]}),e.jsx("div",{className:"text-sm opacity-90",children:"Positive Behaviors"})]}),e.jsx("div",{className:`px-3 py-1 rounded-full text-sm font-medium ${f(h(d)).bgColor} ${f(h(d)).color}`,children:f(h(d)).level})]})]}),e.jsx("div",{className:"grid grid-cols-1 md:grid-cols-2 gap-6",children:Object.entries(y).map(([t,s])=>e.jsxs("div",{className:"bg-white border border-gray-200 rounded-lg p-4",children:[e.jsxs("div",{className:"flex items-center gap-2 mb-3",children:[e.jsx("span",{className:"text-2xl",children:s.icon}),e.jsx("h4",{className:"font-semibold text-gray-900",children:s.name})]}),e.jsx("div",{className:"space-y-2",children:d[t]?.map((r,a)=>e.jsxs("div",{className:"flex items-start gap-2",children:[e.jsx("div",{className:"w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0"}),e.jsxs("div",{className:"flex-1",children:[e.jsx("div",{className:"text-sm font-medium text-gray-900",children:r.text}),e.jsx("div",{className:"text-xs text-gray-500",children:r.evidence})]})]},a))||e.jsx("div",{className:"text-sm text-gray-500 italic",children:"No strengths identified in this category"})})]},t))}),e.jsxs("div",{className:"bg-green-50 border border-green-200 rounded-lg p-6",children:[e.jsx("h4",{className:"text-lg font-semibold text-green-900 mb-3",children:"✨ Strength Summary"}),e.jsx("p",{className:"text-green-800 leading-relaxed",children:o.summary})]}),e.jsxs("div",{className:"bg-yellow-50 border border-yellow-200 rounded-lg p-6",children:[e.jsx("h4",{className:"text-lg font-semibold text-yellow-900 mb-3",children:"💡 Recommendations"}),e.jsx("ul",{className:"space-y-2",children:o.recommendations.map((t,s)=>e.jsxs("li",{className:"flex items-start gap-2",children:[e.jsx("span",{className:"text-yellow-600 mt-1",children:"•"}),e.jsx("span",{className:"text-yellow-800",children:t})]},s))})]}),e.jsxs("div",{className:"bg-gray-50 rounded-lg p-6",children:[e.jsx("h4",{className:"text-lg font-semibold text-gray-900 mb-4",children:"📤 Export Report"}),u&&e.jsx("div",{className:`mb-4 p-3 rounded-md ${u.includes("✅")?"bg-green-50 text-green-800 border border-green-200":"bg-red-50 text-red-800 border border-red-200"}`,children:u}),e.jsxs("div",{className:"flex gap-3",children:[e.jsx("button",{onClick:()=>v("pdf"),className:"px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors",children:"📄 Export as PDF"}),e.jsx("button",{onClick:()=>v("docx"),className:"px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors",children:"📝 Export as Word"}),e.jsx("button",{onClick:()=>v("json"),className:"px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors",children:"📊 Export as JSON"})]}),e.jsxs("p",{className:"text-sm text-gray-600 mt-3",children:["Reports are generated on ",o.generatedDate," by ",o.generatedBy]})]})]}):e.jsxs("div",{className:"bg-gray-50 rounded-lg p-8 text-center",children:[e.jsx("div",{className:"text-4xl mb-4",children:"⚡"}),e.jsx("h3",{className:"text-xl font-semibold text-gray-900 mb-2",children:"Generating Report..."}),e.jsx("p",{className:"text-gray-600",children:"Please wait while we create a comprehensive strength-based report."})]}):e.jsxs("div",{className:"bg-gray-50 rounded-lg p-8 text-center",children:[e.jsx("div",{className:"text-4xl mb-4",children:"👋"}),e.jsx("h3",{className:"text-xl font-semibold text-gray-900 mb-2",children:"Select a Student"}),e.jsx("p",{className:"text-gray-600",children:"Choose a student from the sidebar to generate their strength-based report."})]})})]})]})}export{F as default};
+import { r as l, j as e } from './ui-vendor-D6t9Fqz9.js';
+import { u as O } from './index-DxxIEH0w.js';
+import './react-vendor-DTDVRx5A.js';
+import './data-vendor-CMp-lYVg.js';
+const y = {
+  learning: {
+    name: 'Learning & Academic Strengths',
+    icon: '🎓',
+    color: 'blue',
+    strengths: [
+      'Curious and eager to learn',
+      'Focused and attentive',
+      'Quick to understand concepts',
+      'Good problem solver',
+      'Creative thinker',
+      'Excellent memory',
+      'Strong work ethic',
+      'Independent learner',
+    ],
+  },
+  social: {
+    name: 'Social & Emotional Strengths',
+    icon: '🤝',
+    color: 'green',
+    strengths: [
+      'Kind and compassionate',
+      'Good listener',
+      'Helpful to peers',
+      'Respectful to others',
+      'Good communicator',
+      'Empathetic',
+      'Team player',
+      'Leadership potential',
+    ],
+  },
+  character: {
+    name: 'Character & Personal Strengths',
+    icon: '⭐',
+    color: 'purple',
+    strengths: [
+      'Honest and trustworthy',
+      'Responsible',
+      'Resilient',
+      'Confident',
+      'Patient',
+      'Determined',
+      'Positive attitude',
+      'Self-motivated',
+    ],
+  },
+  creative: {
+    name: 'Creative & Practical Strengths',
+    icon: '🎨',
+    color: 'pink',
+    strengths: [
+      'Creative and imaginative',
+      'Artistic talent',
+      'Musical ability',
+      'Good with hands',
+      'Innovative thinker',
+      'Practical problem solver',
+      'Organized and methodical',
+      'Resourceful',
+    ],
+  },
+};
+function F() {
+  const { selectedClassId: m, user: w } = O(),
+    [i, C] = l.useState(null),
+    [g, x] = l.useState([]),
+    [d, p] = l.useState({}),
+    [o, R] = l.useState(null),
+    [E, j] = l.useState(!1),
+    [k, N] = l.useState(!1),
+    [u, c] = l.useState('');
+  l.useEffect(() => {
+    m && L();
+  }, [m]);
+  const L = async () => {
+      try {
+        j(!0);
+        const t = await fetch(`/api/classes/${m}/students`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (t.ok) {
+          const s = await t.json();
+          x(s.students || []);
+        } else {
+          console.warn('Failed to load students, using mock data');
+          const s = Array.from({ length: 8 }, (r, a) => ({
+            id: `student-${a + 1}`,
+            name: [
+              'Emma Johnson',
+              'Liam Smith',
+              'Olivia Brown',
+              'Noah Davis',
+              'Ava Wilson',
+              'Mason Taylor',
+              'Sophia Anderson',
+              'Ethan Thomas',
+            ][a],
+            gradeLevel: [
+              'Grade 3',
+              'Grade 4',
+              'Grade 5',
+              'Grade 2',
+              'Grade 3',
+              'Grade 4',
+              'Grade 5',
+              'Grade 2',
+            ][a],
+            positiveRatio: Math.random() * 0.4 + 0.4,
+          }));
+          x(s);
+        }
+      } catch (t) {
+        (console.error('Error loading students:', t), x([]));
+      } finally {
+        j(!1);
+      }
+    },
+    G = async (t) => {
+      try {
+        N(!0);
+        const s = await fetch(`/api/student-strengths/${t}`, {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (s.ok) {
+          const r = await s.json();
+          (p(r.strengths || {}), b(r.strengths || {}));
+        } else {
+          const r = S();
+          (p(r), b(r));
+        }
+      } catch (s) {
+        console.error('Error analyzing strengths:', s);
+        const r = S();
+        (p(r), b(r));
+      } finally {
+        N(!1);
+      }
+    },
+    S = () => {
+      const t = {};
+      return (
+        Object.keys(y).forEach((s) => {
+          const r = y[s].strengths,
+            a = Math.floor(Math.random() * 3) + 2,
+            n = r.sort(() => Math.random() - 0.5).slice(0, a);
+          t[s] = n.map((M) => ({
+            text: M,
+            confidence: Math.random() * 0.3 + 0.7,
+            evidence: `Demonstrated through ${Math.floor(Math.random() * 15) + 5} positive behaviors`,
+          }));
+        }),
+        t
+      );
+    },
+    b = (t) => {
+      const s = g.find((a) => a.id === i);
+      if (!s) return;
+      const r = {
+        studentName: s.name,
+        gradeLevel: s.gradeLevel,
+        generatedBy: w?.name || 'Teacher',
+        generatedDate: new Date().toLocaleDateString(),
+        schoolYear: new Date().getFullYear(),
+        strengths: t,
+        summary: T(t),
+        recommendations: $(t),
+        positiveRatio: s.positiveRatio || 0.65,
+      };
+      R(r);
+    },
+    T = (t) => {
+      const r = Object.values(t)
+        .flat()
+        .sort((a, n) => n.confidence - a.confidence)
+        .slice(0, 3);
+      return `${i ? g.find((a) => a.id === i)?.name : 'The student'} demonstrates exceptional strengths in ${r.length} key areas. They consistently show ${r[0]?.text.toLowerCase()} and have a strong capacity for ${r[1]?.text.toLowerCase()}. Their ability to ${r[2]?.text.toLowerCase()} makes them a valuable member of the classroom community.`;
+    },
+    $ = (t) => {
+      const s = [],
+        r = Object.values(t).flat();
+      return (
+        r.some((a) => a.text.includes('leadership')) &&
+          s.push('Consider leadership roles in group activities'),
+        r.some((a) => a.text.includes('creative')) &&
+          s.push('Encourage participation in creative projects and arts'),
+        r.some((a) => a.text.includes('team player')) &&
+          s.push(
+            'Pair with peers who could benefit from their collaborative skills'
+          ),
+        r.some((a) => a.text.includes('independent')) &&
+          s.push('Provide opportunities for independent learning tasks'),
+        s.length > 0
+          ? s
+          : [
+              'Continue to nurture and develop these emerging strengths',
+              'Provide opportunities to apply these strengths in new contexts',
+              'Share these positive qualities with the student to build self-awareness',
+            ]
+      );
+    },
+    v = async (t = 'pdf') => {
+      try {
+        c('Generating report...');
+        const s = await fetch('/api/export-strength-report', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reportData: o, format: t }),
+        });
+        if (s.ok) {
+          const r = await s.blob(),
+            a = window.URL.createObjectURL(r),
+            n = document.createElement('a');
+          ((n.href = a),
+            (n.download = `strength-report-${o.studentName.replace(/\s+/g, '-').toLowerCase()}.${t}`),
+            document.body.appendChild(n),
+            n.click(),
+            window.URL.revokeObjectURL(a),
+            document.body.removeChild(n),
+            c('✅ Report exported successfully!'));
+        } else c('❌ Failed to export report.');
+      } catch (s) {
+        (console.error('Export failed:', s), c('❌ Error exporting report.'));
+      } finally {
+        setTimeout(() => c(''), 3e3);
+      }
+    },
+    h = (t) => {
+      const s = Object.values(t).flat(),
+        r = s.reduce((a, n) => a + n.confidence, 0) / s.length;
+      return Math.round(r * 100);
+    },
+    f = (t) =>
+      t >= 90
+        ? {
+            level: 'Exceptional',
+            color: 'text-green-600',
+            bgColor: 'bg-green-100',
+          }
+        : t >= 80
+          ? { level: 'Strong', color: 'text-blue-600', bgColor: 'bg-blue-100' }
+          : t >= 70
+            ? {
+                level: 'Developing',
+                color: 'text-yellow-600',
+                bgColor: 'bg-yellow-100',
+              }
+            : {
+                level: 'Emerging',
+                color: 'text-purple-600',
+                bgColor: 'bg-purple-100',
+              };
+  return E
+    ? e.jsx('div', {
+        className:
+          'min-h-[60vh] rounded-xl p-8 bg-white border-2 border-dashed border-gray-300 flex items-center justify-center',
+        'data-ct': 'strength-reports',
+        children: e.jsxs('div', {
+          className: 'text-center',
+          children: [
+            e.jsx('div', { className: 'text-6xl mb-4', children: '🌟' }),
+            e.jsx('h3', {
+              className: 'text-xl font-semibold text-gray-900 mb-2',
+              children: 'Loading Strength Reports...',
+            }),
+            e.jsx('p', {
+              className: 'text-gray-600',
+              children: 'Preparing positive insights for your students.',
+            }),
+          ],
+        }),
+      })
+    : e.jsxs('div', {
+        className:
+          'min-h-[60vh] rounded-xl p-8 bg-white border border-gray-200',
+        'data-ct': 'strength-reports',
+        children: [
+          e.jsxs('div', {
+            className: 'mb-8',
+            children: [
+              e.jsx('h2', {
+                className: 'text-2xl font-semibold text-gray-900 mb-2',
+                children: '🌟 Strength Reports',
+              }),
+              e.jsx('p', {
+                className: 'text-gray-600',
+                children:
+                  'Build positive, strength-based reports that celebrate student achievements and potential.',
+              }),
+            ],
+          }),
+          e.jsxs('div', {
+            className: 'grid grid-cols-1 lg:grid-cols-3 gap-8',
+            children: [
+              e.jsx('div', {
+                className: 'lg:col-span-1',
+                children: e.jsxs('div', {
+                  className:
+                    'bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200',
+                  children: [
+                    e.jsx('h3', {
+                      className: 'text-lg font-semibold text-gray-900 mb-4',
+                      children: 'Select Student',
+                    }),
+                    e.jsx('div', {
+                      className: 'space-y-2',
+                      children: g.map((t) =>
+                        e.jsxs(
+                          'button',
+                          {
+                            onClick: () => {
+                              (C(t.id), G(t.id));
+                            },
+                            className: `w-full text-left p-3 rounded-lg transition-colors ${i === t.id ? 'bg-blue-100 border-2 border-blue-300 text-blue-900' : 'bg-white hover:bg-gray-50 border border-gray-200 text-gray-700'}`,
+                            children: [
+                              e.jsx('div', {
+                                className: 'font-medium',
+                                children: t.name,
+                              }),
+                              e.jsx('div', {
+                                className: 'text-sm text-gray-500',
+                                children: t.gradeLevel,
+                              }),
+                              t.positiveRatio &&
+                                e.jsxs('div', {
+                                  className: 'text-sm text-green-600',
+                                  children: [
+                                    Math.round(t.positiveRatio * 100),
+                                    '% positive behaviors',
+                                  ],
+                                }),
+                            ],
+                          },
+                          t.id
+                        )
+                      ),
+                    }),
+                  ],
+                }),
+              }),
+              e.jsx('div', {
+                className: 'lg:col-span-2',
+                children: i
+                  ? k
+                    ? e.jsxs('div', {
+                        className: 'bg-gray-50 rounded-lg p-8 text-center',
+                        children: [
+                          e.jsx('div', {
+                            className: 'text-4xl mb-4',
+                            children: '🔍',
+                          }),
+                          e.jsx('h3', {
+                            className:
+                              'text-xl font-semibold text-gray-900 mb-2',
+                            children: 'Analyzing Strengths...',
+                          }),
+                          e.jsx('p', {
+                            className: 'text-gray-600',
+                            children:
+                              "We're identifying this student's unique strengths and positive qualities.",
+                          }),
+                        ],
+                      })
+                    : o
+                      ? e.jsxs('div', {
+                          className: 'space-y-6',
+                          children: [
+                            e.jsxs('div', {
+                              className:
+                                'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-6',
+                              children: [
+                                e.jsx('h3', {
+                                  className: 'text-2xl font-bold mb-2',
+                                  children: o.studentName,
+                                }),
+                                e.jsx('p', {
+                                  className: 'text-lg opacity-90',
+                                  children: o.gradeLevel,
+                                }),
+                                e.jsxs('div', {
+                                  className: 'mt-4 flex items-center gap-4',
+                                  children: [
+                                    e.jsxs('div', {
+                                      className: 'text-center',
+                                      children: [
+                                        e.jsxs('div', {
+                                          className: 'text-2xl font-bold',
+                                          children: [h(d), '%'],
+                                        }),
+                                        e.jsx('div', {
+                                          className: 'text-sm opacity-90',
+                                          children: 'Strength Score',
+                                        }),
+                                      ],
+                                    }),
+                                    e.jsxs('div', {
+                                      className: 'text-center',
+                                      children: [
+                                        e.jsxs('div', {
+                                          className: 'text-2xl font-bold',
+                                          children: [
+                                            Math.round(o.positiveRatio * 100),
+                                            '%',
+                                          ],
+                                        }),
+                                        e.jsx('div', {
+                                          className: 'text-sm opacity-90',
+                                          children: 'Positive Behaviors',
+                                        }),
+                                      ],
+                                    }),
+                                    e.jsx('div', {
+                                      className: `px-3 py-1 rounded-full text-sm font-medium ${f(h(d)).bgColor} ${f(h(d)).color}`,
+                                      children: f(h(d)).level,
+                                    }),
+                                  ],
+                                }),
+                              ],
+                            }),
+                            e.jsx('div', {
+                              className:
+                                'grid grid-cols-1 md:grid-cols-2 gap-6',
+                              children: Object.entries(y).map(([t, s]) =>
+                                e.jsxs(
+                                  'div',
+                                  {
+                                    className:
+                                      'bg-white border border-gray-200 rounded-lg p-4',
+                                    children: [
+                                      e.jsxs('div', {
+                                        className:
+                                          'flex items-center gap-2 mb-3',
+                                        children: [
+                                          e.jsx('span', {
+                                            className: 'text-2xl',
+                                            children: s.icon,
+                                          }),
+                                          e.jsx('h4', {
+                                            className:
+                                              'font-semibold text-gray-900',
+                                            children: s.name,
+                                          }),
+                                        ],
+                                      }),
+                                      e.jsx('div', {
+                                        className: 'space-y-2',
+                                        children:
+                                          d[t]?.map((r, a) =>
+                                            e.jsxs(
+                                              'div',
+                                              {
+                                                className:
+                                                  'flex items-start gap-2',
+                                                children: [
+                                                  e.jsx('div', {
+                                                    className:
+                                                      'w-2 h-2 bg-blue-500 rounded-full mt-2 flex-shrink-0',
+                                                  }),
+                                                  e.jsxs('div', {
+                                                    className: 'flex-1',
+                                                    children: [
+                                                      e.jsx('div', {
+                                                        className:
+                                                          'text-sm font-medium text-gray-900',
+                                                        children: r.text,
+                                                      }),
+                                                      e.jsx('div', {
+                                                        className:
+                                                          'text-xs text-gray-500',
+                                                        children: r.evidence,
+                                                      }),
+                                                    ],
+                                                  }),
+                                                ],
+                                              },
+                                              a
+                                            )
+                                          ) ||
+                                          e.jsx('div', {
+                                            className:
+                                              'text-sm text-gray-500 italic',
+                                            children:
+                                              'No strengths identified in this category',
+                                          }),
+                                      }),
+                                    ],
+                                  },
+                                  t
+                                )
+                              ),
+                            }),
+                            e.jsxs('div', {
+                              className:
+                                'bg-green-50 border border-green-200 rounded-lg p-6',
+                              children: [
+                                e.jsx('h4', {
+                                  className:
+                                    'text-lg font-semibold text-green-900 mb-3',
+                                  children: '✨ Strength Summary',
+                                }),
+                                e.jsx('p', {
+                                  className: 'text-green-800 leading-relaxed',
+                                  children: o.summary,
+                                }),
+                              ],
+                            }),
+                            e.jsxs('div', {
+                              className:
+                                'bg-yellow-50 border border-yellow-200 rounded-lg p-6',
+                              children: [
+                                e.jsx('h4', {
+                                  className:
+                                    'text-lg font-semibold text-yellow-900 mb-3',
+                                  children: '💡 Recommendations',
+                                }),
+                                e.jsx('ul', {
+                                  className: 'space-y-2',
+                                  children: o.recommendations.map((t, s) =>
+                                    e.jsxs(
+                                      'li',
+                                      {
+                                        className: 'flex items-start gap-2',
+                                        children: [
+                                          e.jsx('span', {
+                                            className: 'text-yellow-600 mt-1',
+                                            children: '•',
+                                          }),
+                                          e.jsx('span', {
+                                            className: 'text-yellow-800',
+                                            children: t,
+                                          }),
+                                        ],
+                                      },
+                                      s
+                                    )
+                                  ),
+                                }),
+                              ],
+                            }),
+                            e.jsxs('div', {
+                              className: 'bg-gray-50 rounded-lg p-6',
+                              children: [
+                                e.jsx('h4', {
+                                  className:
+                                    'text-lg font-semibold text-gray-900 mb-4',
+                                  children: '📤 Export Report',
+                                }),
+                                u &&
+                                  e.jsx('div', {
+                                    className: `mb-4 p-3 rounded-md ${u.includes('✅') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`,
+                                    children: u,
+                                  }),
+                                e.jsxs('div', {
+                                  className: 'flex gap-3',
+                                  children: [
+                                    e.jsx('button', {
+                                      onClick: () => v('pdf'),
+                                      className:
+                                        'px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors',
+                                      children: '📄 Export as PDF',
+                                    }),
+                                    e.jsx('button', {
+                                      onClick: () => v('docx'),
+                                      className:
+                                        'px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors',
+                                      children: '📝 Export as Word',
+                                    }),
+                                    e.jsx('button', {
+                                      onClick: () => v('json'),
+                                      className:
+                                        'px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors',
+                                      children: '📊 Export as JSON',
+                                    }),
+                                  ],
+                                }),
+                                e.jsxs('p', {
+                                  className: 'text-sm text-gray-600 mt-3',
+                                  children: [
+                                    'Reports are generated on ',
+                                    o.generatedDate,
+                                    ' by ',
+                                    o.generatedBy,
+                                  ],
+                                }),
+                              ],
+                            }),
+                          ],
+                        })
+                      : e.jsxs('div', {
+                          className: 'bg-gray-50 rounded-lg p-8 text-center',
+                          children: [
+                            e.jsx('div', {
+                              className: 'text-4xl mb-4',
+                              children: '⚡',
+                            }),
+                            e.jsx('h3', {
+                              className:
+                                'text-xl font-semibold text-gray-900 mb-2',
+                              children: 'Generating Report...',
+                            }),
+                            e.jsx('p', {
+                              className: 'text-gray-600',
+                              children:
+                                'Please wait while we create a comprehensive strength-based report.',
+                            }),
+                          ],
+                        })
+                  : e.jsxs('div', {
+                      className: 'bg-gray-50 rounded-lg p-8 text-center',
+                      children: [
+                        e.jsx('div', {
+                          className: 'text-4xl mb-4',
+                          children: '👋',
+                        }),
+                        e.jsx('h3', {
+                          className: 'text-xl font-semibold text-gray-900 mb-2',
+                          children: 'Select a Student',
+                        }),
+                        e.jsx('p', {
+                          className: 'text-gray-600',
+                          children:
+                            'Choose a student from the sidebar to generate their strength-based report.',
+                        }),
+                      ],
+                    }),
+              }),
+            ],
+          }),
+        ],
+      });
+}
+export { F as default };

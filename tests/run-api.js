@@ -5,7 +5,10 @@ const { app } = require('../server/app');
   try {
     const r = await request(app)
       .post('/api/weather/forecast')
-      .set('x-mock-user', JSON.stringify({ role: 'teacher', scope: { classIds: ['CLASS-1'] } }))
+      .set(
+        'x-mock-user',
+        JSON.stringify({ role: 'teacher', scope: { classIds: ['CLASS-1'] } })
+      )
       .send({ class_id: 'CLASS-2' });
     if (r.status !== 403) {
       console.error('Expected 403, got', r.status, 'body:', r.body);
@@ -18,5 +21,3 @@ const { app } = require('../server/app');
     process.exit(1);
   }
 })();
-
-

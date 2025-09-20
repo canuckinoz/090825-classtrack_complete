@@ -27,12 +27,16 @@ test('can log a behaviour via QuickLog', async () => {
   fireEvent.change(descriptionInput, { target: { value: 'Helped a friend' } });
 
   // Submit the form.  We mock fetch to immediately succeed.
-  global.fetch = jest.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve({}) }));
+  global.fetch = jest.fn(() =>
+    Promise.resolve({ ok: true, json: () => Promise.resolve({}) })
+  );
   fireEvent.click(submitButton);
 
   // After submission the form inputs should be cleared
   await waitFor(() => {
     expect(studentInput.value).toBe('');
+  });
+  await waitFor(() => {
     expect(descriptionInput.value).toBe('');
   });
 });

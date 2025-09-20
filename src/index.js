@@ -12,12 +12,12 @@ import { GlobalProvider } from './context/GlobalState';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
 // E2E convenience: autologin if ?autologin=1
-try{
-  if (window.location.search.includes('autologin=1')){
+try {
+  if (window.location.search.includes('autologin=1')) {
     const token = 'e2e-token';
     window.__E2E_AUTOLOGIN__ = token;
   }
-}catch(_e){}
+} catch (_e) {}
 root.render(
   <React.StrictMode>
     <GlobalProvider>

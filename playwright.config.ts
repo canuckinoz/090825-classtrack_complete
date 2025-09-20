@@ -14,7 +14,7 @@ export default defineConfig({
       command: 'npm run dev',
       port: 3000,
       reuseExistingServer: !process.env.CI,
-    }
+    },
   ],
   use: {
     baseURL: 'http://localhost:3000?autologin=1',
@@ -27,5 +27,3 @@ export default defineConfig({
     },
   ],
 });
-
-

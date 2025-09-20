@@ -1,1 +1,777 @@
-import{r as x,j as e}from"./ui-vendor-D6t9Fqz9.js";import{u as q,g as P}from"./index-DxxIEH0w.js";import"./react-vendor-DTDVRx5A.js";import"./data-vendor-CMp-lYVg.js";const d={positiveBehavior:2,participation:1.5,quickLogPresence:1,quickLogAbsence:-1.5,negativeBehavior:-1,abcIncident:-2,noRecentActivity:-1},M={invisible:.3,low:.5,moderate:.7,high:.9},C={recent:7};function T(a,r,n,t){if(!a||!r||!n||!t)return{score:.5,level:"moderate",isInvisible:!1,signals:[],lastActivity:null,recommendations:[]};const i=[];let c=0,u=0;const h=r.filter(s=>s.studentId===a.id),m=n.filter(s=>s.studentId===a.id),b=t.filter(s=>s.studentId===a.id),g=new Date,l=h.filter(s=>(g-new Date(s.timestamp))/864e5<=C.recent),j=m.filter(s=>(g-new Date(s.timestamp))/864e5<=C.recent),w=l.filter(s=>s.type==="positive");if(w.length>0){const s=Math.min(w.length*.2,1);i.push({type:"positiveBehavior",description:`${w.length} positive behaviors logged`,score:s*d.positiveBehavior,weight:d.positiveBehavior}),c+=s*d.positiveBehavior,u++}const k=l.filter(s=>s.behaviourId===1||s.behaviourId===3);if(k.length>0){const s=Math.min(k.length*.15,1);i.push({type:"participation",description:`${k.length} participation activities`,score:s*d.participation,weight:d.participation}),c+=s*d.participation,u++}b.length>0?(i.push({type:"quickLogPresence",description:"Student appears in quick-log data",score:d.quickLogPresence,weight:d.quickLogPresence}),c+=d.quickLogPresence,u++):(i.push({type:"quickLogAbsence",description:"No quick-log activity detected",score:d.quickLogAbsence,weight:d.quickLogAbsence}),c+=d.quickLogAbsence,u++);const A=l.filter(s=>s.type==="negative");if(A.length>0){const s=Math.min(A.length*.1,.5);i.push({type:"negativeBehavior",description:`${A.length} negative behaviors logged`,score:-s*Math.abs(d.negativeBehavior),weight:d.negativeBehavior}),c-=s*Math.abs(d.negativeBehavior),u++}if(j.length>0){const s=Math.min(j.length*.2,.6);i.push({type:"abcIncident",description:`${j.length} ABC incidents involved`,score:-s*Math.abs(d.abcIncident),weight:d.abcIncident}),c-=s*Math.abs(d.abcIncident),u++}const I=h.length>0?Math.max(...h.map(s=>new Date(s.timestamp))):null;if(I){const s=(g-I)/864e5;s>C.recent&&(i.push({type:"noRecentActivity",description:`No activity for ${Math.round(s)} days`,score:d.noRecentActivity,weight:d.noRecentActivity}),c+=d.noRecentActivity,u++)}const v=u>0?Math.max(0,Math.min(1,c/Math.abs(c)*.5+.5)):.5;let S="moderate";v>=M.high?S="high":v>=M.moderate?S="moderate":v>=M.low?S="low":S="invisible";const D=v<M.invisible,$=z(v,i);return{score:v,level:S,isInvisible:D,signals:i,lastActivity:I,recommendations:$,rawScore:c,signalCount:u}}function z(a,r,n){const t=[];return a<M.invisible?t.push("This student may need immediate attention and connection","Consider one-on-one check-ins to understand their needs","Look for opportunities to celebrate small wins and build confidence"):a<M.low?t.push("Student may be experiencing challenges with engagement","Consider adjusting learning activities to their interests","Look for ways to increase positive interactions and recognition"):a<M.moderate?t.push("Student has moderate engagement - room for growth","Consider peer collaboration opportunities","Look for ways to build on their existing positive behaviors"):t.push("Student is highly engaged - maintain this positive momentum","Consider leadership opportunities for this student","Use their engagement to support and encourage peers"),r.some(h=>h.type==="quickLogAbsence")&&t.push("Student may benefit from more frequent positive recognition"),r.some(h=>h.type==="negativeBehavior")&&t.push("Focus on building positive behavior patterns"),r.some(h=>h.type==="abcIncident")&&t.push("Consider additional support for challenging situations"),t}function O(a,r,n,t){return a.map(i=>({student:i,engagement:T(i,r,n,t)}))}function G(a,r,n,t){return O(a,r,n,t).filter(c=>c.engagement.isInvisible)}const H=[{studentId:1,timestamp:new Date,type:"positive"},{studentId:2,timestamp:new Date,type:"positive"},{studentId:1,timestamp:new Date(Date.now()-2880*60*1e3),type:"positive"},{studentId:3,timestamp:new Date(Date.now()-14400*60*1e3),type:"negative"}];async function Q(a,r,n){try{const t=new URLSearchParams;r&&t.append("tenantId",r),n&&t.append("schoolId",n);const i=await fetch(`/api/constellation-data/${a}?${t.toString()}`);if(!i.ok)throw new Error(`HTTP error! status: ${i.status}`);return await i.json()}catch(t){throw console.error("Error fetching constellation data:",t),t}}function W(a){const r=["Emma","Liam","Olivia","Noah","Ava","Ethan","Sophia","Mason","Isabella","William","Mia","James","Charlotte","Benjamin","Amelia","Lucas","Harper","Henry","Evelyn","Alexander","Abigail","Michael","Emily","Daniel","Elizabeth","Matthew","Sofia","Jackson","Avery","David"],n=[],t=18+Math.floor(Math.random()*10);for(let m=0;m<t;m++){const b=r[m%r.length],g=Math.random()*.4+.3+Math.random()*.3;n.push({id:`student-${m+1}-${a}`,name:b,positiveRatio:Number(g.toFixed(3)),totalBehaviours:Math.floor(Math.random()*20)+5,recentPositiveLog:Math.random()>.7,celebrationMoment:Math.random()>.9})}const i=n.filter(m=>m.positiveRatio>.7).length,c=n.filter(m=>m.positiveRatio>.4&&m.positiveRatio<=.7).length,u=n.filter(m=>m.positiveRatio<=.4).length,h=Number((n.reduce((m,b)=>m+b.positiveRatio,0)/n.length).toFixed(3));return{class_id:a,students:n,constellation_stats:{total_students:n.length,bright_stars:i,growing_stars:c,needs_support_stars:u,average_brightness:h},generated_at:new Date().toISOString()}}function Z(){const{students:a,behaviours:r,abcIncidents:n,engagementOptOuts:t,selectedClassId:i,tenantId:c,schoolId:u}=q(),[h,m]=x.useState({}),[b,g]=x.useState([]),[l,j]=x.useState(null),[w,k]=x.useState(!1),[L,A]=x.useState(null),I="bg-black/60 backdrop-blur-md border border-white/15",v=x.useMemo(()=>[{x:15,y:25},{x:35,y:60},{x:70,y:20},{x:85,y:55},{x:25,y:80},{x:55,y:85},{x:80,y:75},{x:45,y:40}],[]),S=x.useMemo(()=>Array.from({length:50},()=>({left:`${Math.random()*100}%`,top:`${Math.random()*100}%`,delay:`${Math.random()*3}s`,duration:`${2+Math.random()*2}s`,opacity:.3+Math.random()*.4})),[]),D=x.useRef(0),$=x.useMemo(()=>typeof window>"u"||typeof window.matchMedia!="function"?!1:window.matchMedia("(prefers-reduced-motion: reduce)").matches,[]);x.useEffect(()=>{if(!i){j(null);return}(async()=>{k(!0),A(null);const p=++D.current;try{const _=await Q(i,c,u);D.current===p&&j(_)}catch(_){console.warn("API fetch failed, using mock data:",_);try{const y=W(i);D.current===p&&j(y)}catch(y){console.error("Mock data generation failed:",y),A("Failed to load constellation data")}}finally{D.current===p&&k(!1)}})()},[i,c,u]);const s=x.useMemo(()=>G(a,r,n,H),[a,r,n]),E=x.useMemo(()=>new Set((s||[]).filter(o=>!t[o.student.id]).map(o=>o.student.id)),[s,t]);return x.useEffect(()=>{const o={},p=[];(l?.students||a).forEach((f,B)=>{const N=P(f.id);if(N&&(o[f.id]=N,N.shouldShowShootingStar||l&&f.celebrationMoment)){const F=v[B%v.length];p.push({id:`star-${f.id}-${Date.now()}`,studentName:f.name,startX:F.x,startY:F.y,trailColor:N.trailColor||"#FFD700"})}}),m(o);let y;return p.length>0&&(g(f=>[...f,...p]),y=setTimeout(()=>{g(f=>f.filter(B=>!p.some(N=>N.id===B.id)))},3e3)),()=>{y&&clearTimeout(y)}},[a,r,n,t,l]),e.jsxs("div",{className:"relative min-h-[70vh] rounded-xl overflow-hidden",style:{background:"radial-gradient(ellipse at top, #0a0e27 0%, #020515 100%)"},"data-ct":"constellation",children:[e.jsx("div",{className:"absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4",children:e.jsxs("div",{className:"text-center",children:[e.jsx("h2",{className:"text-3xl leading-tight tracking-tight font-extrabold text-white mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent",children:"✨ Student Constellation ✨"}),e.jsx("p",{className:"text-white/70 text-base",children:"Stars shine brighter with positive connections"})]})}),l&&!w&&!L&&e.jsx("div",{className:"absolute top-20 left-1/2 -translate-x-1/2 z-10 px-4 w-full max-w-3xl",children:e.jsx("div",{className:`grid grid-cols-2 sm:grid-cols-4 gap-3 ${I} rounded-xl p-3 shadow-lg`,children:[{label:"Stars",value:l.constellation_stats.total_students},{label:"Bright",value:l.constellation_stats.bright_stars},{label:"Growing",value:l.constellation_stats.growing_stars},{label:"Need Support",value:l.constellation_stats.needs_support_stars}].map((o,p)=>e.jsxs("div",{className:"text-center",children:[e.jsx("div",{className:"text-lg font-semibold text-white/90",children:o.value}),e.jsx("div",{className:"text-xs text-white/70 leading-5",children:o.label})]},p))})}),e.jsx("div",{className:"absolute inset-0 pointer-events-none",children:S.map((o,p)=>e.jsx("div",{className:`absolute w-1 h-1 bg-white rounded-full ${$?"":"animate-twinkle"}`,style:{left:o.left,top:o.top,animationDelay:o.delay,animationDuration:o.duration,opacity:o.opacity}},p))}),b.map(o=>e.jsx(U,{...o},o.id)),w&&e.jsx("div",{className:"absolute inset-0 flex items-center justify-center",children:e.jsxs("div",{className:"text-center text-white",children:[e.jsx("div",{className:"text-4xl mb-4 animate-pulse",children:"⭐"}),e.jsx("div",{className:"text-xl font-medium",children:"Charting the stars..."}),e.jsx("div",{className:"text-sm text-white/70",children:"Loading constellation data"})]})}),L&&!w&&e.jsx("div",{className:"absolute inset-0 flex items-center justify-center",children:e.jsxs("div",{className:"text-center text-white",children:[e.jsx("div",{className:"text-4xl mb-4",children:"⚠️"}),e.jsx("div",{className:"text-xl font-medium",children:"Unable to load stars"}),e.jsx("div",{className:"text-sm text-white/70",children:L})]})}),!i&&!w&&e.jsx("div",{className:"absolute inset-0 flex items-center justify-center",children:e.jsxs("div",{className:"text-center text-white",children:[e.jsx("div",{className:"text-4xl mb-4",children:"🌌"}),e.jsx("div",{className:"text-xl font-medium",children:"Select a class to view the constellation"}),e.jsx("div",{className:"text-sm text-white/70",children:"Choose a class from the dropdown above"})]})}),l&&!w&&!L&&l.students.map((o,p)=>{const _=E.has(o.id),y=h[o.id]||{},f=y.starBrightness||o.positiveRatio||.5,B=y.pulseEffect||o.recentPositiveLog,N=l&&o.celebrationMoment;return e.jsx("div",{className:"absolute",style:{left:`${v[p%v.length].x}%`,top:`${v[p%v.length].y}%`,transform:"translate(-50%, -50%)"},children:e.jsx(R,{brightness:f,isPulsing:B,isInvisible:_,isCelebration:N,studentName:o.name,totalBehaviours:o.totalBehaviours||0})},o.id)}),e.jsxs("div",{className:"absolute bottom-4 left-1/2 -translate-x-1/2 px-4",children:[e.jsxs("div",{className:`flex items-center gap-6 lg:gap-8 rounded-xl px-6 py-3 shadow-2xl ${I}`,children:[e.jsxs("div",{className:"flex items-center gap-2 text-sm text-white/90",children:[e.jsx("div",{className:"scale-110",children:e.jsx(R,{brightness:.8,isPulsing:!1,isInvisible:!1,isCelebration:!1})}),e.jsx("span",{children:"Bright = high positive ratio"})]}),e.jsxs("div",{className:"flex items-center gap-2 text-sm text-white/90",children:[e.jsx("div",{className:"scale-110",children:e.jsx(R,{brightness:.9,isPulsing:!0,isInvisible:!1,isCelebration:!1})}),e.jsx("span",{children:"Pulsing = recent positive log"})]}),e.jsxs("div",{className:"flex items-center gap-2 text-sm text-white/90",children:[e.jsx("span",{children:"💫"}),e.jsx("span",{children:"Shooting star = celebration moment"})]})]}),l&&!w&&!L&&e.jsxs("div",{className:"mt-4 text-center",children:[e.jsxs("div",{className:"text-sm text-white/80 font-medium",children:[l.constellation_stats.total_students," stars •",l.constellation_stats.bright_stars," bright •",l.constellation_stats.growing_stars," growing •",l.constellation_stats.needs_support_stars," need support"]}),e.jsxs("div",{className:"text-xs text-white/60 mt-1",children:["Avg brightness: ",Math.round(l.constellation_stats.average_brightness*100),"%"]})]})]})]})}function R({brightness:a,isPulsing:r,isInvisible:n,isCelebration:t,studentName:i,totalBehaviours:c}){const[u,h]=x.useState(!1),b=24+a*16;let g,l;n?(g="#9CA3AF",l="rgba(156, 163, 175, 0.4)"):t?(g="#FFD700",l="rgba(255, 215, 0, 0.8)"):r?(g="#FFD700",l="rgba(255, 215, 0, 0.6)"):(g=`rgba(255, 193, 7, ${Math.max(.3,a)})`,l=`rgba(255, 193, 7, ${a*.6})`);const j=r?8:4;return e.jsxs("div",{className:"relative group cursor-pointer",role:"button",tabIndex:0,"aria-label":`${i}: ${Math.round((a||0)*100)}% brightness`,onMouseEnter:()=>h(!0),onMouseLeave:()=>h(!1),onFocus:()=>h(!0),onBlur:()=>h(!1),children:[e.jsx("svg",{width:b,height:b,viewBox:"0 0 24 24",role:"img","aria-hidden":"true",className:`transition-all duration-500 ${r?"animate-star-pulse":""}`,style:{filter:`drop-shadow(0 0 ${j}px ${l})`,transform:n?"scale(0.75)":"scale(1)"},children:e.jsx("path",{d:"M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z",fill:g,stroke:t?"#FFA500":"transparent",strokeWidth:t?"1":"0"})}),t&&e.jsx("div",{className:"absolute inset-0 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2",children:e.jsx("div",{className:"w-16 h-16 rounded-full border-2 border-orange-400 opacity-60 animate-ping"})}),r&&!t&&e.jsx("div",{className:"absolute inset-0 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2",children:e.jsx("div",{className:"w-12 h-12 rounded-full border-2 border-yellow-300 opacity-60 animate-ping"})}),u&&e.jsxs("div",{className:"absolute -bottom-16 left-1/2 -translate-x-1/2 z-50",children:[e.jsxs("div",{className:"bg-black/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20 shadow-2xl min-w-[120px]",children:[e.jsx("div",{className:"text-white font-medium text-sm text-center",children:i}),e.jsxs("div",{className:"text-gray-300 text-xs text-center mt-1",children:[Math.round(a*100),"% bright"]}),e.jsxs("div",{className:"text-gray-400 text-xs text-center",children:[c," connections"]}),t&&e.jsx("div",{className:"text-yellow-400 text-xs text-center mt-1",children:"✨ Celebrating! ✨"})]}),e.jsx("div",{className:"absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black/90 rotate-45 border-l border-t border-white/20"})]})]})}function U({startX:a,startY:r,studentName:n,trailColor:t="#FFD700"}){return e.jsx("div",{className:"absolute pointer-events-none z-20",style:{left:`${a}%`,top:`${r}%`,transform:"translate(-50%, -50%)"},children:e.jsxs("div",{className:"relative",children:[e.jsx("div",{className:"w-2 h-2 rounded-full animate-ping",style:{background:t}}),e.jsx("div",{className:"absolute top-0 left-0 w-12 h-1 opacity-80 animate-pulse",style:{background:`linear-gradient(90deg, ${t}, transparent)`,transform:"rotate(-30deg) translateX(-100%)"}}),e.jsxs("div",{className:"absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm text-yellow-300 font-medium whitespace-nowrap animate-shooting-star-fade",children:[n," ⭐"]})]})})}export{Z as default};
+import { r as x, j as e } from './ui-vendor-D6t9Fqz9.js';
+import { u as q, g as P } from './index-DxxIEH0w.js';
+import './react-vendor-DTDVRx5A.js';
+import './data-vendor-CMp-lYVg.js';
+const d = {
+    positiveBehavior: 2,
+    participation: 1.5,
+    quickLogPresence: 1,
+    quickLogAbsence: -1.5,
+    negativeBehavior: -1,
+    abcIncident: -2,
+    noRecentActivity: -1,
+  },
+  M = { invisible: 0.3, low: 0.5, moderate: 0.7, high: 0.9 },
+  C = { recent: 7 };
+function T(a, r, n, t) {
+  if (!a || !r || !n || !t)
+    return {
+      score: 0.5,
+      level: 'moderate',
+      isInvisible: !1,
+      signals: [],
+      lastActivity: null,
+      recommendations: [],
+    };
+  const i = [];
+  let c = 0,
+    u = 0;
+  const h = r.filter((s) => s.studentId === a.id),
+    m = n.filter((s) => s.studentId === a.id),
+    b = t.filter((s) => s.studentId === a.id),
+    g = new Date(),
+    l = h.filter((s) => (g - new Date(s.timestamp)) / 864e5 <= C.recent),
+    j = m.filter((s) => (g - new Date(s.timestamp)) / 864e5 <= C.recent),
+    w = l.filter((s) => s.type === 'positive');
+  if (w.length > 0) {
+    const s = Math.min(w.length * 0.2, 1);
+    (i.push({
+      type: 'positiveBehavior',
+      description: `${w.length} positive behaviors logged`,
+      score: s * d.positiveBehavior,
+      weight: d.positiveBehavior,
+    }),
+      (c += s * d.positiveBehavior),
+      u++);
+  }
+  const k = l.filter((s) => s.behaviourId === 1 || s.behaviourId === 3);
+  if (k.length > 0) {
+    const s = Math.min(k.length * 0.15, 1);
+    (i.push({
+      type: 'participation',
+      description: `${k.length} participation activities`,
+      score: s * d.participation,
+      weight: d.participation,
+    }),
+      (c += s * d.participation),
+      u++);
+  }
+  b.length > 0
+    ? (i.push({
+        type: 'quickLogPresence',
+        description: 'Student appears in quick-log data',
+        score: d.quickLogPresence,
+        weight: d.quickLogPresence,
+      }),
+      (c += d.quickLogPresence),
+      u++)
+    : (i.push({
+        type: 'quickLogAbsence',
+        description: 'No quick-log activity detected',
+        score: d.quickLogAbsence,
+        weight: d.quickLogAbsence,
+      }),
+      (c += d.quickLogAbsence),
+      u++);
+  const A = l.filter((s) => s.type === 'negative');
+  if (A.length > 0) {
+    const s = Math.min(A.length * 0.1, 0.5);
+    (i.push({
+      type: 'negativeBehavior',
+      description: `${A.length} negative behaviors logged`,
+      score: -s * Math.abs(d.negativeBehavior),
+      weight: d.negativeBehavior,
+    }),
+      (c -= s * Math.abs(d.negativeBehavior)),
+      u++);
+  }
+  if (j.length > 0) {
+    const s = Math.min(j.length * 0.2, 0.6);
+    (i.push({
+      type: 'abcIncident',
+      description: `${j.length} ABC incidents involved`,
+      score: -s * Math.abs(d.abcIncident),
+      weight: d.abcIncident,
+    }),
+      (c -= s * Math.abs(d.abcIncident)),
+      u++);
+  }
+  const I =
+    h.length > 0 ? Math.max(...h.map((s) => new Date(s.timestamp))) : null;
+  if (I) {
+    const s = (g - I) / 864e5;
+    s > C.recent &&
+      (i.push({
+        type: 'noRecentActivity',
+        description: `No activity for ${Math.round(s)} days`,
+        score: d.noRecentActivity,
+        weight: d.noRecentActivity,
+      }),
+      (c += d.noRecentActivity),
+      u++);
+  }
+  const v =
+    u > 0 ? Math.max(0, Math.min(1, (c / Math.abs(c)) * 0.5 + 0.5)) : 0.5;
+  let S = 'moderate';
+  v >= M.high
+    ? (S = 'high')
+    : v >= M.moderate
+      ? (S = 'moderate')
+      : v >= M.low
+        ? (S = 'low')
+        : (S = 'invisible');
+  const D = v < M.invisible,
+    $ = z(v, i);
+  return {
+    score: v,
+    level: S,
+    isInvisible: D,
+    signals: i,
+    lastActivity: I,
+    recommendations: $,
+    rawScore: c,
+    signalCount: u,
+  };
+}
+function z(a, r, n) {
+  const t = [];
+  return (
+    a < M.invisible
+      ? t.push(
+          'This student may need immediate attention and connection',
+          'Consider one-on-one check-ins to understand their needs',
+          'Look for opportunities to celebrate small wins and build confidence'
+        )
+      : a < M.low
+        ? t.push(
+            'Student may be experiencing challenges with engagement',
+            'Consider adjusting learning activities to their interests',
+            'Look for ways to increase positive interactions and recognition'
+          )
+        : a < M.moderate
+          ? t.push(
+              'Student has moderate engagement - room for growth',
+              'Consider peer collaboration opportunities',
+              'Look for ways to build on their existing positive behaviors'
+            )
+          : t.push(
+              'Student is highly engaged - maintain this positive momentum',
+              'Consider leadership opportunities for this student',
+              'Use their engagement to support and encourage peers'
+            ),
+    r.some((h) => h.type === 'quickLogAbsence') &&
+      t.push('Student may benefit from more frequent positive recognition'),
+    r.some((h) => h.type === 'negativeBehavior') &&
+      t.push('Focus on building positive behavior patterns'),
+    r.some((h) => h.type === 'abcIncident') &&
+      t.push('Consider additional support for challenging situations'),
+    t
+  );
+}
+function O(a, r, n, t) {
+  return a.map((i) => ({ student: i, engagement: T(i, r, n, t) }));
+}
+function G(a, r, n, t) {
+  return O(a, r, n, t).filter((c) => c.engagement.isInvisible);
+}
+const H = [
+  { studentId: 1, timestamp: new Date(), type: 'positive' },
+  { studentId: 2, timestamp: new Date(), type: 'positive' },
+  {
+    studentId: 1,
+    timestamp: new Date(Date.now() - 2880 * 60 * 1e3),
+    type: 'positive',
+  },
+  {
+    studentId: 3,
+    timestamp: new Date(Date.now() - 14400 * 60 * 1e3),
+    type: 'negative',
+  },
+];
+async function Q(a, r, n) {
+  try {
+    const t = new URLSearchParams();
+    (r && t.append('tenantId', r), n && t.append('schoolId', n));
+    const i = await fetch(`/api/constellation-data/${a}?${t.toString()}`);
+    if (!i.ok) throw new Error(`HTTP error! status: ${i.status}`);
+    return await i.json();
+  } catch (t) {
+    throw (console.error('Error fetching constellation data:', t), t);
+  }
+}
+function W(a) {
+  const r = [
+      'Emma',
+      'Liam',
+      'Olivia',
+      'Noah',
+      'Ava',
+      'Ethan',
+      'Sophia',
+      'Mason',
+      'Isabella',
+      'William',
+      'Mia',
+      'James',
+      'Charlotte',
+      'Benjamin',
+      'Amelia',
+      'Lucas',
+      'Harper',
+      'Henry',
+      'Evelyn',
+      'Alexander',
+      'Abigail',
+      'Michael',
+      'Emily',
+      'Daniel',
+      'Elizabeth',
+      'Matthew',
+      'Sofia',
+      'Jackson',
+      'Avery',
+      'David',
+    ],
+    n = [],
+    t = 18 + Math.floor(Math.random() * 10);
+  for (let m = 0; m < t; m++) {
+    const b = r[m % r.length],
+      g = Math.random() * 0.4 + 0.3 + Math.random() * 0.3;
+    n.push({
+      id: `student-${m + 1}-${a}`,
+      name: b,
+      positiveRatio: Number(g.toFixed(3)),
+      totalBehaviours: Math.floor(Math.random() * 20) + 5,
+      recentPositiveLog: Math.random() > 0.7,
+      celebrationMoment: Math.random() > 0.9,
+    });
+  }
+  const i = n.filter((m) => m.positiveRatio > 0.7).length,
+    c = n.filter((m) => m.positiveRatio > 0.4 && m.positiveRatio <= 0.7).length,
+    u = n.filter((m) => m.positiveRatio <= 0.4).length,
+    h = Number(
+      (n.reduce((m, b) => m + b.positiveRatio, 0) / n.length).toFixed(3)
+    );
+  return {
+    class_id: a,
+    students: n,
+    constellation_stats: {
+      total_students: n.length,
+      bright_stars: i,
+      growing_stars: c,
+      needs_support_stars: u,
+      average_brightness: h,
+    },
+    generated_at: new Date().toISOString(),
+  };
+}
+function Z() {
+  const {
+      students: a,
+      behaviours: r,
+      abcIncidents: n,
+      engagementOptOuts: t,
+      selectedClassId: i,
+      tenantId: c,
+      schoolId: u,
+    } = q(),
+    [h, m] = x.useState({}),
+    [b, g] = x.useState([]),
+    [l, j] = x.useState(null),
+    [w, k] = x.useState(!1),
+    [L, A] = x.useState(null),
+    I = 'bg-black/60 backdrop-blur-md border border-white/15',
+    v = x.useMemo(
+      () => [
+        { x: 15, y: 25 },
+        { x: 35, y: 60 },
+        { x: 70, y: 20 },
+        { x: 85, y: 55 },
+        { x: 25, y: 80 },
+        { x: 55, y: 85 },
+        { x: 80, y: 75 },
+        { x: 45, y: 40 },
+      ],
+      []
+    ),
+    S = x.useMemo(
+      () =>
+        Array.from({ length: 50 }, () => ({
+          left: `${Math.random() * 100}%`,
+          top: `${Math.random() * 100}%`,
+          delay: `${Math.random() * 3}s`,
+          duration: `${2 + Math.random() * 2}s`,
+          opacity: 0.3 + Math.random() * 0.4,
+        })),
+      []
+    ),
+    D = x.useRef(0),
+    $ = x.useMemo(
+      () =>
+        typeof window > 'u' || typeof window.matchMedia != 'function'
+          ? !1
+          : window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      []
+    );
+  x.useEffect(() => {
+    if (!i) {
+      j(null);
+      return;
+    }
+    (async () => {
+      (k(!0), A(null));
+      const p = ++D.current;
+      try {
+        const _ = await Q(i, c, u);
+        D.current === p && j(_);
+      } catch (_) {
+        console.warn('API fetch failed, using mock data:', _);
+        try {
+          const y = W(i);
+          D.current === p && j(y);
+        } catch (y) {
+          (console.error('Mock data generation failed:', y),
+            A('Failed to load constellation data'));
+        }
+      } finally {
+        D.current === p && k(!1);
+      }
+    })();
+  }, [i, c, u]);
+  const s = x.useMemo(() => G(a, r, n, H), [a, r, n]),
+    E = x.useMemo(
+      () =>
+        new Set(
+          (s || []).filter((o) => !t[o.student.id]).map((o) => o.student.id)
+        ),
+      [s, t]
+    );
+  return (
+    x.useEffect(() => {
+      const o = {},
+        p = [];
+      ((l?.students || a).forEach((f, B) => {
+        const N = P(f.id);
+        if (
+          N &&
+          ((o[f.id] = N),
+          N.shouldShowShootingStar || (l && f.celebrationMoment))
+        ) {
+          const F = v[B % v.length];
+          p.push({
+            id: `star-${f.id}-${Date.now()}`,
+            studentName: f.name,
+            startX: F.x,
+            startY: F.y,
+            trailColor: N.trailColor || '#FFD700',
+          });
+        }
+      }),
+        m(o));
+      let y;
+      return (
+        p.length > 0 &&
+          (g((f) => [...f, ...p]),
+          (y = setTimeout(() => {
+            g((f) => f.filter((B) => !p.some((N) => N.id === B.id)));
+          }, 3e3))),
+        () => {
+          y && clearTimeout(y);
+        }
+      );
+    }, [a, r, n, t, l]),
+    e.jsxs('div', {
+      className: 'relative min-h-[70vh] rounded-xl overflow-hidden',
+      style: {
+        background: 'radial-gradient(ellipse at top, #0a0e27 0%, #020515 100%)',
+      },
+      'data-ct': 'constellation',
+      children: [
+        e.jsx('div', {
+          className: 'absolute top-4 left-1/2 -translate-x-1/2 z-10 px-4',
+          children: e.jsxs('div', {
+            className: 'text-center',
+            children: [
+              e.jsx('h2', {
+                className:
+                  'text-3xl leading-tight tracking-tight font-extrabold text-white mb-1 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent',
+                children: '✨ Student Constellation ✨',
+              }),
+              e.jsx('p', {
+                className: 'text-white/70 text-base',
+                children: 'Stars shine brighter with positive connections',
+              }),
+            ],
+          }),
+        }),
+        l &&
+          !w &&
+          !L &&
+          e.jsx('div', {
+            className:
+              'absolute top-20 left-1/2 -translate-x-1/2 z-10 px-4 w-full max-w-3xl',
+            children: e.jsx('div', {
+              className: `grid grid-cols-2 sm:grid-cols-4 gap-3 ${I} rounded-xl p-3 shadow-lg`,
+              children: [
+                { label: 'Stars', value: l.constellation_stats.total_students },
+                { label: 'Bright', value: l.constellation_stats.bright_stars },
+                {
+                  label: 'Growing',
+                  value: l.constellation_stats.growing_stars,
+                },
+                {
+                  label: 'Need Support',
+                  value: l.constellation_stats.needs_support_stars,
+                },
+              ].map((o, p) =>
+                e.jsxs(
+                  'div',
+                  {
+                    className: 'text-center',
+                    children: [
+                      e.jsx('div', {
+                        className: 'text-lg font-semibold text-white/90',
+                        children: o.value,
+                      }),
+                      e.jsx('div', {
+                        className: 'text-xs text-white/70 leading-5',
+                        children: o.label,
+                      }),
+                    ],
+                  },
+                  p
+                )
+              ),
+            }),
+          }),
+        e.jsx('div', {
+          className: 'absolute inset-0 pointer-events-none',
+          children: S.map((o, p) =>
+            e.jsx(
+              'div',
+              {
+                className: `absolute w-1 h-1 bg-white rounded-full ${$ ? '' : 'animate-twinkle'}`,
+                style: {
+                  left: o.left,
+                  top: o.top,
+                  animationDelay: o.delay,
+                  animationDuration: o.duration,
+                  opacity: o.opacity,
+                },
+              },
+              p
+            )
+          ),
+        }),
+        b.map((o) => e.jsx(U, { ...o }, o.id)),
+        w &&
+          e.jsx('div', {
+            className: 'absolute inset-0 flex items-center justify-center',
+            children: e.jsxs('div', {
+              className: 'text-center text-white',
+              children: [
+                e.jsx('div', {
+                  className: 'text-4xl mb-4 animate-pulse',
+                  children: '⭐',
+                }),
+                e.jsx('div', {
+                  className: 'text-xl font-medium',
+                  children: 'Charting the stars...',
+                }),
+                e.jsx('div', {
+                  className: 'text-sm text-white/70',
+                  children: 'Loading constellation data',
+                }),
+              ],
+            }),
+          }),
+        L &&
+          !w &&
+          e.jsx('div', {
+            className: 'absolute inset-0 flex items-center justify-center',
+            children: e.jsxs('div', {
+              className: 'text-center text-white',
+              children: [
+                e.jsx('div', { className: 'text-4xl mb-4', children: '⚠️' }),
+                e.jsx('div', {
+                  className: 'text-xl font-medium',
+                  children: 'Unable to load stars',
+                }),
+                e.jsx('div', {
+                  className: 'text-sm text-white/70',
+                  children: L,
+                }),
+              ],
+            }),
+          }),
+        !i &&
+          !w &&
+          e.jsx('div', {
+            className: 'absolute inset-0 flex items-center justify-center',
+            children: e.jsxs('div', {
+              className: 'text-center text-white',
+              children: [
+                e.jsx('div', { className: 'text-4xl mb-4', children: '🌌' }),
+                e.jsx('div', {
+                  className: 'text-xl font-medium',
+                  children: 'Select a class to view the constellation',
+                }),
+                e.jsx('div', {
+                  className: 'text-sm text-white/70',
+                  children: 'Choose a class from the dropdown above',
+                }),
+              ],
+            }),
+          }),
+        l &&
+          !w &&
+          !L &&
+          l.students.map((o, p) => {
+            const _ = E.has(o.id),
+              y = h[o.id] || {},
+              f = y.starBrightness || o.positiveRatio || 0.5,
+              B = y.pulseEffect || o.recentPositiveLog,
+              N = l && o.celebrationMoment;
+            return e.jsx(
+              'div',
+              {
+                className: 'absolute',
+                style: {
+                  left: `${v[p % v.length].x}%`,
+                  top: `${v[p % v.length].y}%`,
+                  transform: 'translate(-50%, -50%)',
+                },
+                children: e.jsx(R, {
+                  brightness: f,
+                  isPulsing: B,
+                  isInvisible: _,
+                  isCelebration: N,
+                  studentName: o.name,
+                  totalBehaviours: o.totalBehaviours || 0,
+                }),
+              },
+              o.id
+            );
+          }),
+        e.jsxs('div', {
+          className: 'absolute bottom-4 left-1/2 -translate-x-1/2 px-4',
+          children: [
+            e.jsxs('div', {
+              className: `flex items-center gap-6 lg:gap-8 rounded-xl px-6 py-3 shadow-2xl ${I}`,
+              children: [
+                e.jsxs('div', {
+                  className: 'flex items-center gap-2 text-sm text-white/90',
+                  children: [
+                    e.jsx('div', {
+                      className: 'scale-110',
+                      children: e.jsx(R, {
+                        brightness: 0.8,
+                        isPulsing: !1,
+                        isInvisible: !1,
+                        isCelebration: !1,
+                      }),
+                    }),
+                    e.jsx('span', { children: 'Bright = high positive ratio' }),
+                  ],
+                }),
+                e.jsxs('div', {
+                  className: 'flex items-center gap-2 text-sm text-white/90',
+                  children: [
+                    e.jsx('div', {
+                      className: 'scale-110',
+                      children: e.jsx(R, {
+                        brightness: 0.9,
+                        isPulsing: !0,
+                        isInvisible: !1,
+                        isCelebration: !1,
+                      }),
+                    }),
+                    e.jsx('span', {
+                      children: 'Pulsing = recent positive log',
+                    }),
+                  ],
+                }),
+                e.jsxs('div', {
+                  className: 'flex items-center gap-2 text-sm text-white/90',
+                  children: [
+                    e.jsx('span', { children: '💫' }),
+                    e.jsx('span', {
+                      children: 'Shooting star = celebration moment',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            l &&
+              !w &&
+              !L &&
+              e.jsxs('div', {
+                className: 'mt-4 text-center',
+                children: [
+                  e.jsxs('div', {
+                    className: 'text-sm text-white/80 font-medium',
+                    children: [
+                      l.constellation_stats.total_students,
+                      ' stars •',
+                      l.constellation_stats.bright_stars,
+                      ' bright •',
+                      l.constellation_stats.growing_stars,
+                      ' growing •',
+                      l.constellation_stats.needs_support_stars,
+                      ' need support',
+                    ],
+                  }),
+                  e.jsxs('div', {
+                    className: 'text-xs text-white/60 mt-1',
+                    children: [
+                      'Avg brightness: ',
+                      Math.round(
+                        l.constellation_stats.average_brightness * 100
+                      ),
+                      '%',
+                    ],
+                  }),
+                ],
+              }),
+          ],
+        }),
+      ],
+    })
+  );
+}
+function R({
+  brightness: a,
+  isPulsing: r,
+  isInvisible: n,
+  isCelebration: t,
+  studentName: i,
+  totalBehaviours: c,
+}) {
+  const [u, h] = x.useState(!1),
+    b = 24 + a * 16;
+  let g, l;
+  n
+    ? ((g = '#9CA3AF'), (l = 'rgba(156, 163, 175, 0.4)'))
+    : t
+      ? ((g = '#FFD700'), (l = 'rgba(255, 215, 0, 0.8)'))
+      : r
+        ? ((g = '#FFD700'), (l = 'rgba(255, 215, 0, 0.6)'))
+        : ((g = `rgba(255, 193, 7, ${Math.max(0.3, a)})`),
+          (l = `rgba(255, 193, 7, ${a * 0.6})`));
+  const j = r ? 8 : 4;
+  return e.jsxs('div', {
+    className: 'relative group cursor-pointer',
+    role: 'button',
+    tabIndex: 0,
+    'aria-label': `${i}: ${Math.round((a || 0) * 100)}% brightness`,
+    onMouseEnter: () => h(!0),
+    onMouseLeave: () => h(!1),
+    onFocus: () => h(!0),
+    onBlur: () => h(!1),
+    children: [
+      e.jsx('svg', {
+        width: b,
+        height: b,
+        viewBox: '0 0 24 24',
+        role: 'img',
+        'aria-hidden': 'true',
+        className: `transition-all duration-500 ${r ? 'animate-star-pulse' : ''}`,
+        style: {
+          filter: `drop-shadow(0 0 ${j}px ${l})`,
+          transform: n ? 'scale(0.75)' : 'scale(1)',
+        },
+        children: e.jsx('path', {
+          d: 'M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z',
+          fill: g,
+          stroke: t ? '#FFA500' : 'transparent',
+          strokeWidth: t ? '1' : '0',
+        }),
+      }),
+      t &&
+        e.jsx('div', {
+          className:
+            'absolute inset-0 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2',
+          children: e.jsx('div', {
+            className:
+              'w-16 h-16 rounded-full border-2 border-orange-400 opacity-60 animate-ping',
+          }),
+        }),
+      r &&
+        !t &&
+        e.jsx('div', {
+          className:
+            'absolute inset-0 -translate-x-1/2 -translate-y-1/2 left-1/2 top-1/2',
+          children: e.jsx('div', {
+            className:
+              'w-12 h-12 rounded-full border-2 border-yellow-300 opacity-60 animate-ping',
+          }),
+        }),
+      u &&
+        e.jsxs('div', {
+          className: 'absolute -bottom-16 left-1/2 -translate-x-1/2 z-50',
+          children: [
+            e.jsxs('div', {
+              className:
+                'bg-black/90 backdrop-blur-sm rounded-lg px-3 py-2 border border-white/20 shadow-2xl min-w-[120px]',
+              children: [
+                e.jsx('div', {
+                  className: 'text-white font-medium text-sm text-center',
+                  children: i,
+                }),
+                e.jsxs('div', {
+                  className: 'text-gray-300 text-xs text-center mt-1',
+                  children: [Math.round(a * 100), '% bright'],
+                }),
+                e.jsxs('div', {
+                  className: 'text-gray-400 text-xs text-center',
+                  children: [c, ' connections'],
+                }),
+                t &&
+                  e.jsx('div', {
+                    className: 'text-yellow-400 text-xs text-center mt-1',
+                    children: '✨ Celebrating! ✨',
+                  }),
+              ],
+            }),
+            e.jsx('div', {
+              className:
+                'absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-black/90 rotate-45 border-l border-t border-white/20',
+            }),
+          ],
+        }),
+    ],
+  });
+}
+function U({
+  startX: a,
+  startY: r,
+  studentName: n,
+  trailColor: t = '#FFD700',
+}) {
+  return e.jsx('div', {
+    className: 'absolute pointer-events-none z-20',
+    style: { left: `${a}%`, top: `${r}%`, transform: 'translate(-50%, -50%)' },
+    children: e.jsxs('div', {
+      className: 'relative',
+      children: [
+        e.jsx('div', {
+          className: 'w-2 h-2 rounded-full animate-ping',
+          style: { background: t },
+        }),
+        e.jsx('div', {
+          className: 'absolute top-0 left-0 w-12 h-1 opacity-80 animate-pulse',
+          style: {
+            background: `linear-gradient(90deg, ${t}, transparent)`,
+            transform: 'rotate(-30deg) translateX(-100%)',
+          },
+        }),
+        e.jsxs('div', {
+          className:
+            'absolute -bottom-6 left-1/2 -translate-x-1/2 text-sm text-yellow-300 font-medium whitespace-nowrap animate-shooting-star-fade',
+          children: [n, ' ⭐'],
+        }),
+      ],
+    }),
+  });
+}
+export { Z as default };

@@ -18,7 +18,7 @@ export default function Login() {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
         throw new Error('Invalid credentials');
@@ -33,7 +33,10 @@ export default function Login() {
 
   return (
     <div className="flex justify-center items-center h-full">
-      <form onSubmit={handleSubmit} className="bg-white p-6 rounded shadow w-80 space-y-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded shadow w-80 space-y-4"
+      >
         <h2 className="text-xl font-semibold text-center">Login</h2>
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
