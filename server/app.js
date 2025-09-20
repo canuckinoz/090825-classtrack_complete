@@ -355,6 +355,27 @@ function buildApp() {
     res.json({ ok: true, report: { summary: 'school-wide data' } });
   });
 
+  // Simple session-based auth guard (dev-safe)
+  function authRequired(req, res, next) {
+    const sessUser =
+      /** @type {any} */ (req).session && /** @type {any} */ (req).session.user;
+    const user = sessUser || req.user || null;
+    if (!user)
+      return res.status(401).json({ ok: false, error: 'unauthenticated' });
+    return next();
+  }
+
+  // API router
+  const apiRouter = express.Router();
+
+  apiRouter.get('/classes', authRequired, (_req, res) => {
+    res
+      .type('application/json')
+      .json({ ok: true, classes: [{ id: 'CLASS-3A', name: 'Class 3A' }] });
+  });
+
+  app.use('/api', apiRouter);
+
   // Central error handler
   app.use(errorHandler);
 
