@@ -37,11 +37,16 @@ export const useStore = create(
         user: null,
         token: null,
         async login({ username, password }) {
-          // Keep function name stable; perform same API call as before
-          const res = await fetch('/api/login', {
+          // Prefer real API origin (production or local API server)
+          const base =
+            (typeof window !== 'undefined' && window.__API_ORIGIN__) ||
+            process.env.REACT_APP_API_ORIGIN ||
+            'http://localhost:3005';
+          const res = await fetch(`${base}/api/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password }),
+            credentials: 'include',
+            body: JSON.stringify({ email: username, password }),
           });
           if (!res.ok) throw new Error('Invalid credentials');
           const data = await res.json();
@@ -167,7 +172,18 @@ export const useStore = create(
 
       // App bootstrap thunk placeholder
       async bootstrapApp() {
-        // Place to fetch initial data if needed
+        try {
+          const base =
+            (typeof window !== 'undefined' && window.__API_ORIGIN__) ||
+            process.env.REACT_APP_API_ORIGIN ||
+            'http://localhost:3005';
+          const res = await fetch(`${base}/api/me`, { credentials: 'include' });
+          if (!res.ok) return true;
+          const data = await res.json();
+          if (data && data.ok && data.user) {
+            set((state) => ({ auth: { ...state.auth, user: data.user } }));
+          }
+        } catch (_e) {}
         return true;
       },
     }),
