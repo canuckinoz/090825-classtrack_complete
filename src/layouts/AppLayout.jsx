@@ -32,6 +32,7 @@ export default function AppLayout() {
         </NavLink>
         <div className="ml-auto flex items-center gap-3">
           <span className="opacity-90">{userName}</span>
+          {process.env.NODE_ENV !== 'production' && <DevUserSwitcher />}
           <QuickLog.Trigger />
         </div>
       </header>
@@ -39,6 +40,51 @@ export default function AppLayout() {
       <main className="flex-1 p-4">
         <Outlet />
       </main>
+    </div>
+  );
+}
+
+function DevUserSwitcher() {
+  const roles = [
+    { label: 'Teacher', value: 'teacher' },
+    { label: 'Admin', value: 'admin' },
+  ];
+  const classIds = ['CLASS-3A', 'CLASS-5B'];
+
+  function go(role, classId) {
+    const params = new URLSearchParams({ role, classId, redirect: '/' });
+    window.location.href = `/dev-login?${params.toString()}`;
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <select
+        aria-label="Dev role"
+        className="text-navy rounded-md px-2 py-1"
+        onChange={(e) => go(e.target.value, classIds[0])}
+        defaultValue=""
+      >
+        <option value="" disabled>
+          Dev: Switch User
+        </option>
+        {roles.map((r) => (
+          <option key={r.value} value={r.value}>
+            {r.label}
+          </option>
+        ))}
+      </select>
+      <select
+        aria-label="Dev class"
+        className="text-navy rounded-md px-2 py-1"
+        onChange={(e) => go(roles[0].value, e.target.value)}
+        defaultValue={classIds[0]}
+      >
+        {classIds.map((cid) => (
+          <option key={cid} value={cid}>
+            {cid}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
