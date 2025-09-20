@@ -51,13 +51,30 @@ export default function Login() {
           />
         </div>
         {process.env.NODE_ENV !== 'production' && (
-          <a
+          <button
+            type="button"
             className="mt-3 inline-block rounded-md bg-blue-600 text-white px-3 py-2"
-            href="/dev-login?role=teacher&classId=CLASS-3A&redirect=/#/"
             title="Logs you in as a teacher for CLASS-3A"
+            onClick={async () => {
+              try {
+                const base =
+                  (typeof window !== 'undefined' &&
+                    /** @type {any} */ (window).__API_ORIGIN__) ||
+                  process.env.REACT_APP_API_ORIGIN ||
+                  'http://localhost:3005';
+                const res = await fetch(`${base}/auth/dev-login`, {
+                  method: 'POST',
+                  credentials: 'include',
+                });
+                const data = await res.json();
+                if (data?.ok) {
+                  navigate('/dashboard', { replace: true });
+                }
+              } catch (_e) {}
+            }}
           >
             Use demo teacher
-          </a>
+          </button>
         )}
         <button
           type="submit"

@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
+const cookieParser = require('cookie-parser');
 const { rateLimit } = require('express-rate-limit');
 const { requireTeacherClassParam } = require('./auth/middleware');
 const { stripComparativeFields } = require('./auth/rbac');
@@ -49,6 +50,7 @@ function buildApp() {
       credentials: true,
     })
   );
+  app.use(cookieParser());
 
   // Core security headers via Helmet
   app.use(helmet.noSniff());
@@ -100,8 +102,13 @@ function buildApp() {
     session({
       secret: process.env.SESSION_SECRET || 'dev',
       resave: false,
-      saveUninitialized: true,
-      cookie: { sameSite: 'lax' },
+      saveUninitialized: false,
+      cookie: {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 8,
+      },
     })
   );
 
@@ -116,6 +123,25 @@ function buildApp() {
   app.use('/api/register', authLimiter);
 
   app.use(devLoginRouter);
+
+  // Dev-only POST dev-login for convenience
+  app.post('/auth/dev-login', (req, res) => {
+    if (process.env.NODE_ENV === 'production')
+      return res
+        .status(403)
+        .json({ ok: false, error: 'disabled in production' });
+    const user = {
+      id: 'TEACH-001',
+      name: 'Demo Teacher',
+      role: 'teacher',
+      classId: 'CLASS-3A',
+      scope: { classIds: ['CLASS-3A'] },
+    };
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (/** @type {any} */ (req).session)
+      /** @type {any} */ (req).session.user = user;
+    return res.json({ ok: true, user });
+  });
 
   // Test helper: allow injecting a mock user via header
   app.use((req, _res, next) => {
@@ -214,10 +240,14 @@ function buildApp() {
 
   // Me (dev returns seeded user without token)
   app.get('/api/me', (req, res) => {
-    if (process.env.NODE_ENV !== 'production') {
-      return res.json({ ok: true, user: req.user });
-    }
-    return res.status(401).json({ ok: false, error: 'Missing token' });
+    // Prefer session user when present; fall back to dev-injected user
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const sessUser =
+      /** @type {any} */ (req).session && /** @type {any} */ (req).session.user;
+    const user = sessUser || req.user || null;
+    if (!user)
+      return res.status(200).json({ ok: false, error: 'unauthenticated' });
+    return res.json({ ok: true, user });
   });
 
   // Logs
