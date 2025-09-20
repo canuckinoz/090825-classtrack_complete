@@ -4,17 +4,26 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const bodyParser = require('body-parser');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const { requireTeacherClassParam } = require('./auth/middleware');
 const { stripComparativeFields } = require('./auth/rbac');
 const { seedTeacher } = require('./dev/seedTeacher');
 const { devLoginRouter } = require('./auth/devLogin');
+const errorHandler = require('./middleware/errorHandler');
 
 function buildApp() {
   const app = express();
-  const JWT_SECRET = process.env.JWT_SECRET || 'supersecret';
+  const JWT_SECRET = process.env.JWT_SECRET;
 
   app.set('trust proxy', 1);
-  app.use(cors());
+  app.use(helmet());
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
+      credentials: true,
+    })
+  );
   app.use(bodyParser.json());
   app.use(
     session({
@@ -24,6 +33,11 @@ function buildApp() {
       cookie: { sameSite: 'lax' },
     })
   );
+
+  const authLimiter = rateLimit({ windowMs: 60 * 1000, max: 30 });
+  app.use('/api/login', authLimiter);
+  app.use('/api/register', authLimiter);
+
   app.use(devLoginRouter);
 
   // Test helper: allow injecting a mock user via header
@@ -66,11 +80,13 @@ function buildApp() {
 
   function authenticateToken(req, res, next) {
     if (req.user) return next(); // mock injected
-    const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1];
-    if (!token) return res.status(401).json({ message: 'Missing token' });
+    const authHeader = req.headers['authorization'] || '';
+    const token = authHeader.split(' ')[1];
+    if (!token)
+      return res.status(401).json({ ok: false, error: 'Missing token' });
     jwt.verify(token, JWT_SECRET, (err, user) => {
-      if (err) return res.status(403).json({ message: 'Invalid token' });
+      if (err)
+        return res.status(403).json({ ok: false, error: 'Invalid token' });
       let role = 'admin';
       let scope = undefined;
       if (user?.username === 'teacher') {
@@ -83,25 +99,43 @@ function buildApp() {
   }
 
   // Auth
-  app.post('/api/register', async (req, res) => {
-    const { username, password } = req.body;
-    if (!username || !password)
-      return res.status(400).json({ message: 'Missing credentials' });
-    if (users[username])
-      return res.status(409).json({ message: 'User already exists' });
-    const hashed = await bcrypt.hash(password, 10);
-    users[username] = { username, password: hashed };
-    res.status(201).json({ message: 'User registered' });
+  app.post('/api/register', async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+      if (!username || !password)
+        return res
+          .status(400)
+          .json({ ok: false, error: 'Missing credentials' });
+      if (users[username])
+        return res
+          .status(409)
+          .json({ ok: false, error: 'User already exists' });
+      const hashed = await bcrypt.hash(password, 10);
+      users[username] = { username, password: hashed };
+      res.status(201).json({ ok: true, message: 'User registered' });
+    } catch (err) {
+      next(err);
+    }
   });
 
-  app.post('/api/login', async (req, res) => {
-    const { username, password } = req.body;
-    const user = users[username];
-    if (!user) return res.status(401).json({ message: 'Invalid credentials' });
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) return res.status(401).json({ message: 'Invalid credentials' });
-    const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
-    res.json({ user: { username }, token });
+  app.post('/api/login', async (req, res, next) => {
+    try {
+      const { username, password } = req.body;
+      const user = users[username];
+      if (!user)
+        return res
+          .status(401)
+          .json({ ok: false, error: 'Invalid credentials' });
+      const match = await bcrypt.compare(password, user.password);
+      if (!match)
+        return res
+          .status(401)
+          .json({ ok: false, error: 'Invalid credentials' });
+      const token = jwt.sign({ username }, JWT_SECRET, { expiresIn: '1h' });
+      res.json({ ok: true, user: { username }, token });
+    } catch (err) {
+      next(err);
+    }
   });
 
   // Me (dev returns seeded user without token)
@@ -126,7 +160,6 @@ function buildApp() {
     requireTeacherClassParam('class_id'),
     (req, res, next) => {
       try {
-        // existing logic would compute a forecast; keep a friendly baseline fallback
         const result = {
           ok: true,
           class_id: req.body.class_id,
@@ -134,7 +167,6 @@ function buildApp() {
         };
         return res.json(result);
       } catch (e) {
-        // prefer a baseline payload over 500s
         if (e && e.status && (e.status === 400 || e.status === 403))
           return next(e);
         return res.json({
@@ -168,7 +200,6 @@ function buildApp() {
         data.forecast = stripComparativeFields(data.forecast);
         return res.json(data);
       } catch (e) {
-        // still enforce 403/400; otherwise provide a friendly baseline
         if (e && e.status && (e.status === 400 || e.status === 403))
           return next(e);
         return res.json({
@@ -194,19 +225,8 @@ function buildApp() {
     res.json({ ok: true, report: { summary: 'school-wide data' } });
   });
 
-  // Error handler
-  app.use((err, _req, res, _next) => {
-    const status = err.status || 500;
-    const map = {
-      auth_required: 'Sign in to continue.',
-      out_of_scope: 'This class is not in your scope.',
-      role_required: 'Insufficient permissions.',
-      class_id_required: 'class_id is required.',
-    };
-    res
-      .status(status)
-      .json({ ok: false, error: map[err.message] || err.message || 'error' });
-  });
+  // Central error handler
+  app.use(errorHandler);
 
   return app;
 }

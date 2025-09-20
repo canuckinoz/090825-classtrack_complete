@@ -1,33 +1,27 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useGlobalContext } from '../../context/GlobalState';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useStore } from '../../state/useStore';
 
 /**
  * Login component for authenticating users.  It posts credentials to the
- * backend server and stores the returned token and user in the global state.
+ * backend server and stores the returned token and user in the store.
  */
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const { dispatch } = useGlobalContext();
   const navigate = useNavigate();
+  const location = useLocation();
+  const login = useStore((s) => s.auth.login);
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      });
-      if (!res.ok) {
-        throw new Error('Invalid credentials');
-      }
-      const data = await res.json();
-      dispatch({ type: 'LOGIN_SUCCESS', payload: data });
-      navigate('/');
+      await login({ username, password });
+      const redirectTo = location.state?.from?.pathname || '/dashboard';
+      navigate(redirectTo, { replace: true });
     } catch (err) {
-      dispatch({ type: 'SET_ERROR', payload: err.message });
+      // In a later step, surface this via UI. For now, console.
+      console.error(err);
     }
   }
 
