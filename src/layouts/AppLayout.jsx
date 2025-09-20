@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useStore } from '../state/useStore';
 import QuickLog from '../features/quicklog';
+import ClassesBadge from '../features/classes/ClassesBadge';
 
 export default function AppLayout() {
   const user = useStore((s) => s.auth.user);
@@ -31,6 +32,7 @@ export default function AppLayout() {
           Students
         </NavLink>
         <div className="ml-auto flex items-center gap-3">
+          <ClassesBadge />
           <span className="opacity-90">{userName}</span>
           {process.env.NODE_ENV !== 'production' && <DevUserSwitcher />}
           <QuickLog.Trigger />
