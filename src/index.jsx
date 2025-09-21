@@ -14,6 +14,13 @@ if (container) {
       </BrowserRouter>
     </React.StrictMode>
   );
+  // Disable SW in dev to avoid proxy/caching interference
+  if (import.meta.env.MODE !== 'production' && 'serviceWorker' in navigator) {
+    navigator.serviceWorker
+      .getRegistrations()
+      .then((rs) => rs.forEach((r) => r.unregister()))
+      .catch(() => {});
+  }
 } else {
   console.error(
     "Failed to find the root element. Please ensure your HTML has an element with id='root'."
