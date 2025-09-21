@@ -9,17 +9,44 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = env("DATABASE_PROVIDER")
   url      = env("DATABASE_URL")
 }
 
+enum Role {
+  TEACHER
+  LEADER
+  CENTRAL
+}
+
+enum Subrole {
+  YEAR_COORD
+  INCLUSION
+  PRINCIPAL
+  SCHOOL_ADMIN
+  DISTRICT_ADMIN
+  CEO
+}
+
 model User {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
-  passwordHash String
-  name         String
-  role         String
-  logs         BehaviourLog[] @relation("AuthorLogs")
+  id             String    @id @default(uuid())
+  email          String    @unique
+  passwordHash   String
+  role           Role
+  subroles       Subrole[]
+  orgId          String
+  regionIds      String[]
+  isActive       Boolean   @default(true)
+  scope          Json
+  permissions    String[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // indices for performance and isolation
+  @@index([email])
+  @@index([orgId])
+  @@index([role])
+  @@index([orgId, role])
 }
 
 model Student {
