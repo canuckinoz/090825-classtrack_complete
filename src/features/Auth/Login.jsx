@@ -62,9 +62,14 @@ export default function Login() {
                     /** @type {any} */ (window).__API_ORIGIN__) ||
                   process.env.REACT_APP_API_ORIGIN ||
                   'http://localhost:3005';
-                const res = await fetch(`${base}/auth/dev-login`, {
+                const res = await fetch(`${base}/auth/login`, {
                   method: 'POST',
                   credentials: 'include',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    email: 'teacher@example.com',
+                    password: 'password',
+                  }),
                 });
                 const data = await res.json();
                 if (data?.ok) {

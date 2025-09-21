@@ -258,6 +258,52 @@ function buildApp() {
     }
   });
 
+  // Session auth: real email+password, sets req.session.user
+  app.post('/auth/login', async (req, res, next) => {
+    try {
+      const { email, password } = req.body || {};
+      if (!email || !password)
+        return res
+          .status(400)
+          .json({ ok: false, error: 'email and password required' });
+      const user = await prisma.user.findUnique({ where: { email } });
+      if (!user)
+        return res
+          .status(401)
+          .json({ ok: false, error: 'invalid credentials' });
+      const match = await bcrypt.compare(password, user.passwordHash);
+      if (!match)
+        return res
+          .status(401)
+          .json({ ok: false, error: 'invalid credentials' });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (/** @type {any} */ (req).session) {
+        /** @type {any} */ (req).session.user = {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+        };
+      }
+      return res.json({
+        ok: true,
+        user: { email: user.email, name: user.name, role: user.role },
+      });
+    } catch (e) {
+      next(e);
+    }
+  });
+
+  app.post('/auth/logout', (req, res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    const sess = /** @type {any} */ (req).session;
+    if (sess && typeof sess.destroy === 'function') {
+      sess.destroy(() => res.json({ ok: true }));
+    } else {
+      res.json({ ok: true });
+    }
+  });
+
   // Me (dev returns seeded user without token)
   app.get('/api/me', (req, res) => {
     // Prefer session user when present; fall back to dev-injected user

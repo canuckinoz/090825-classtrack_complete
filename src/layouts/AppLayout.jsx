@@ -55,7 +55,7 @@ function DevUserSwitcher() {
 
   function go(role, classId) {
     const params = new URLSearchParams({ role, classId, redirect: '/' });
-    window.location.href = `/dev-login?${params.toString()}`;
+    window.location.href = `/auth/login?${params.toString()}`;
   }
 
   return (
