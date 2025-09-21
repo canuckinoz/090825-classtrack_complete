@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useStore } from '../state/useStore';
 import QuickLog from '../features/quicklog';
@@ -7,6 +7,13 @@ import ClassesBadge from '../features/classes/ClassesBadge';
 export default function AppLayout() {
   const user = useStore((s) => s.auth.user);
   const userName = user?.name || user?.username || 'Guest';
+  const bootstrap = useStore(
+    (s) => (s.auth && s.auth.bootstrap) || s.bootstrapApp
+  );
+
+  useEffect(() => {
+    if (typeof bootstrap === 'function') bootstrap();
+  }, [bootstrap]);
 
   return (
     <div className="min-h-screen flex flex-col bg-[color:var(--surface,#f7f9fc)]">
