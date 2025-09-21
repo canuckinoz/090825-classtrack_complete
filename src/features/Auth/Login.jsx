@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../../state/useStore';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 /**
  * Login component for authenticating users.  It posts credentials to the
@@ -10,13 +10,13 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const navigate = useNavigate();
+  const authLogin = useStore((s) => s.auth.login);
   const location = useLocation();
-  const login = useStore((s) => s.auth.login);
 
   async function handleSubmit(e) {
     e.preventDefault();
     try {
-      await login({ username, password });
+      await authLogin({ username, password });
       const redirectTo = location.state?.from?.pathname || '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (err) {

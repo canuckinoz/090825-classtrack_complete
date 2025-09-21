@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App'; // Assuming your main App component is in App.jsx
+import { useStore as useStoreZ } from './state/useStore';
 import './index.css'; // Assuming you have a main CSS file
 
 const container = document.getElementById('root');
@@ -50,6 +51,17 @@ if (container) {
       };
     }
   } catch (_e) {}
+
+  // Dev-only helper to force a session rehydrate without a full reload
+  if (import.meta.env.DEV) {
+    // @ts-ignore
+    window.refreshAuth = () => useStoreZ.getState().auth.bootstrap?.();
+    // eslint-disable-next-line no-console
+    console.log(
+      '%cDev helper available: window.refreshAuth()',
+      'color:#0ea5e9'
+    );
+  }
 } else {
   console.error(
     "Failed to find the root element. Please ensure your HTML has an element with id='root'."

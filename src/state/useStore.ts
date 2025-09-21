@@ -91,17 +91,23 @@ export const useStore = create<StoreState>()(
           token: null,
           ready: false,
           async login({ username, password }) {
-            const res = await fetch('/api/login', {
+            const res = await fetch('/auth/login', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
+              headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+              },
               body: JSON.stringify({ email: username, password }),
             });
-            if (!res.ok) throw new Error('Invalid credentials');
-            const data = (await res.json()) as { user: User; token: string };
+            const parsed = (await res.json().catch(() => ({}))) as any;
+            if (!res.ok || !parsed?.ok)
+              throw new Error(parsed?.error || 'Invalid credentials');
+            const user = parsed.user as User;
             set((state) => ({
-              auth: { ...state.auth, user: data.user, token: data.token },
+              auth: { ...state.auth, user, ready: true },
             }));
-            return data;
+            return { user, token: get().auth.token || '' };
           },
           logout() {
             set((state) => ({
