@@ -8,6 +8,10 @@ import './index.css'; // Assuming you have a main CSS file
 const container = document.getElementById('root');
 if (container) {
   const root = createRoot(container);
+  // Dev guard: if something navigates to /build, snap back to /
+  if (import.meta.env.DEV && window.location.pathname.startsWith('/build')) {
+    window.history.replaceState(null, '', '/');
+  }
   root.render(
     <React.StrictMode>
       <BrowserRouter>
