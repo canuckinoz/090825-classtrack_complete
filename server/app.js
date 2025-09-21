@@ -112,6 +112,29 @@ function buildApp() {
     })
   );
 
+  // Debug endpoint: verify cookies/session in dev
+  app.get('/api/_debug', (req, res) => {
+    try {
+      const os = require('node:os');
+      res.json({
+        ok: true,
+        host: os.hostname(),
+        headers: {
+          origin: req.get('origin') || null,
+          cookie: req.get('cookie') ? '[present]' : null,
+          userAgent: req.get('user-agent') || null,
+        },
+        session: {
+          hasSession: Boolean(/** @type {any} */ (req).session),
+          user: /** @type {any} */ (req).session?.user || null,
+          id: /** @type {any} */ (req).sessionID || null,
+        },
+      });
+    } catch (_e) {
+      res.json({ ok: true, session: { error: 'debug_failed' } });
+    }
+  });
+
   const authLimiter = rateLimit({
     windowMs: 60 * 1000,
     max: 10,
