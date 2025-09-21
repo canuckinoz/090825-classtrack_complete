@@ -7,8 +7,10 @@ export default function PrivateRoute({
   roles,
 }: PropsWithChildren<{ roles?: string[] }>) {
   const location = useLocation();
-  const user = useStore((s) => s.auth.user);
-  const token = useStore((s) => s.auth.token);
+  const { user, ready, token } = useStore((s) => s.auth);
+  if (!ready) {
+    return <div className="p-8 text-center text-slate-500">Loading…</div>;
+  }
   const isAuthenticated = Boolean(token || user);
 
   if (!isAuthenticated) {

@@ -7,12 +7,14 @@ export type StoreState = {
   auth: {
     user: User | null;
     token: string | null;
+    ready?: boolean;
     login: (args: {
       username: string;
       password: string;
     }) => Promise<{ user: User; token: string }>;
     logout: () => void;
     hydrateFromStorage: () => { user: User | null; token: string | null };
+    bootstrap?: () => Promise<void>;
   };
   students: Student[];
   studentIndexById: Record<string | number, number>;
@@ -87,6 +89,7 @@ export const useStore = create<StoreState>()(
         auth: {
           user: null,
           token: null,
+          ready: false,
           async login({ username, password }) {
             const res = await fetch('/api/login', {
               method: 'POST',
@@ -107,6 +110,30 @@ export const useStore = create<StoreState>()(
           },
           hydrateFromStorage() {
             return get().auth;
+          },
+          async bootstrap() {
+            try {
+              const res = await fetch('/api/me', { credentials: 'include' });
+              const data = await res.json().catch(() => ({ ok: false }) as any);
+              set((state) => ({
+                auth: {
+                  ...state.auth,
+                  user: (data as any).ok ? (data as any).user : null,
+                  ready: true,
+                },
+              }));
+              // eslint-disable-next-line no-console
+              console.log(
+                '[AUTH/bootstrap] user=',
+                (data as any).ok ? (data as any).user : null
+              );
+            } catch (e: any) {
+              set((state) => ({
+                auth: { ...state.auth, user: null, ready: true },
+              }));
+              // eslint-disable-next-line no-console
+              console.warn('[AUTH/bootstrap] failed:', e?.message);
+            }
           },
         },
         students: initialStudents,

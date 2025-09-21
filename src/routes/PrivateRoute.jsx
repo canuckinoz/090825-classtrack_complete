@@ -4,8 +4,11 @@ import { useStore } from '../state/useStore';
 
 export default function PrivateRoute({ children }) {
   const location = useLocation();
-  const user = useStore((s) => s.auth.user);
-  const token = useStore((s) => s.auth.token);
+  const auth = useStore((s) => s.auth);
+  const { user, ready, token } = auth;
+  if (!ready) {
+    return <div className="p-10 text-center text-slate-500">Loading…</div>;
+  }
   const isAuthenticated = Boolean(token || user);
 
   if (!isAuthenticated) {
