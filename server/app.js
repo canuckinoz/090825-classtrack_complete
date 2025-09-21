@@ -143,6 +143,26 @@ function buildApp() {
     return res.json({ ok: true, user });
   });
 
+  // Dev Portal (non-production and ENABLE_DEV_PORTAL=true)
+  if (
+    process.env.NODE_ENV !== 'production' &&
+    process.env.ENABLE_DEV_PORTAL === 'true'
+  ) {
+    app.get('/_dev/login', (_req, res) => {
+      const html = `<!doctype html>
+        <html><head><meta charset="utf-8"><title>Dev Portal</title>
+        <style>body{font-family:system-ui;padding:24px;background:#f7f9fc} .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px} .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px} a.btn{display:inline-block;margin-top:8px;background:#0ea5e9;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none}</style>
+        </head><body>
+        <h1>Developer Login</h1>
+        <div class="grid">
+          <div class="card"><h3>Teacher</h3><p>Class-focused supportive view</p><a class="btn" href="/dev-login?role=teacher&classId=CLASS-3A&redirect=/">Login</a></div>
+          <div class="card"><h3>Leader (Principal)</h3><p>School aggregates, no comparisons</p><a class="btn" href="/dev-login?role=admin&classId=CLASS-3A&redirect=/">Login</a></div>
+        </div>
+        </body></html>`;
+      res.type('text/html').send(html);
+    });
+  }
+
   // Test helper: allow injecting a mock user via header
   app.use((req, _res, next) => {
     const mockHeader = req.headers['x-mock-user'];
