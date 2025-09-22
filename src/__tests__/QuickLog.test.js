@@ -7,14 +7,24 @@ import axios from 'axios';
 jest.mock('axios');
 
 const initialStoreState = useStore.getState();
+const mockStudents = [
+  { id: 1, name: 'Emma Thompson', recentActivity: 'none', status: 'thriving', positiveRatio: 0.9 },
+  { id: 2, name: 'Liam Chen', recentActivity: 'none', status: 'growing',   positiveRatio: 0.7 },
+];
 
 describe('QuickLog', () => {
   beforeEach(() => {
-    useStore.setState(initialStoreState);
-    axios.post.mockResolvedValue({ data: {} });
+    // Reset store and mock axios before each test
+    useStore.setState(initialStoreState, true);
+    axios.post.mockImplementation(async (url, data) => {
+      return { data: { ...data, id: Date.now() } };
+    });
   });
 
   test('can log a behaviour via QuickLog', async () => {
+    // Set mock students in the store for the test
+    useStore.setState({ students: mockStudents });
+
     render(<QuickLog.Trigger />);
 
     // Open the QuickLog overlay
@@ -34,10 +44,10 @@ describe('QuickLog', () => {
     });
 
     // Verify that the addLog action was called (indirectly, via logBehaviour)
-    // and that the state has been updated.
+    // and that the `logs` state has been updated correctly.
     const state = useStore.getState();
-    expect(state.behaviours.length).toBe(1);
-    expect(state.behaviours[0].studentId).toBe(1);
-    expect(state.behaviours[0].behaviourId).toBe(1);
+    expect(state.logs.length).toBe(1);
+    expect(state.logs[0].studentId).toBe(1);
+    expect(state.logs[0].behaviourId).toBe(1);
   });
 });

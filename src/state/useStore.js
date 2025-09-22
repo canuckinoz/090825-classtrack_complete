@@ -1,13 +1,6 @@
 import { create } from "zustand";
 import axios from 'axios';
 
-// Minimal, safe defaults so nothing crashes while refactoring.
-const initialStudents = [
-  { id: 1, name: "Emma Thompson", recentActivity: "none", status: "thriving", positiveRatio: 0.9 },
-  { id: 2, name: "Liam Chen", recentActivity: "none", status: "growing",   positiveRatio: 0.7 },
-  { id: 3, name: "Sophie Taylor", recentActivity: "none", status: "resting",  positiveRatio: 0.4 },
-];
-
 export const useStore = create((set, get) => ({
   // Auth State
   user: null,
@@ -15,13 +8,11 @@ export const useStore = create((set, get) => ({
   isAuthenticated: false,
 
   // UI
-  currentView: "weather", // "weather" | "garden" | "constellation" | "analytics"
   loading: false,
   error: null,
-  setView: (view) => set({ currentView: view }),
 
   // Data
-  students: initialStudents,
+  students: [],
   logs: [],
   predictions: {},
   behaviours: [],
@@ -45,8 +36,19 @@ export const useStore = create((set, get) => ({
       set({ user, token, isAuthenticated: true, loading: false });
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       get().fetchLogs();
+      get().fetchStudents();
     } catch (err) {
       set({ error: 'Invalid credentials', loading: false });
+    }
+  },
+
+  fetchStudents: async () => {
+    set({ loading: true, error: null });
+    try {
+      const res = await axios.get('/api/students');
+      set({ students: res.data, loading: false });
+    } catch (err) {
+      set({ error: 'Failed to fetch students', loading: false });
     }
   },
 
@@ -84,23 +86,26 @@ export const useStore = create((set, get) => ({
     }
   },
 
-  logBehaviour: ({ studentId, behaviourId, note = "" }) => {
-    const entry = { id: Date.now(), studentId, behaviourId, note, timestamp: new Date() };
-    const behaviours = [...get().behaviours, entry];
+  logBehaviour: async ({ studentId, behaviourId, note = "" }) => {
+    const entry = { studentId, behaviourId, note, timestamp: new Date().toISOString() };
 
-    // light update to student's recentActivity
+    // Persist the log to the server
+    await get().addLog(entry);
+
+    // Optimistically update student's recentActivity
     const students = get().students.map(s =>
       s.id === studentId ? { ...s, recentActivity: "recent" } : s
     );
 
-    // tweak garden positiveRatio in memory (never punitive)
+    // Optimistically tweak garden positiveRatio in memory
     const bt = get().behaviourTypes.find(b => b.id === behaviourId);
-    const bump = bt?.type === "positive" ? +0.05 : bt?.type === "support" || bt?.type === "growth" ? -0.03 : 0;
-    const updatedStudents = students.map(s =>
-      s.id === studentId ? { ...s, positiveRatio: Math.max(0, Math.min(1, (s.positiveRatio ?? 0.5) + bump)) } : s
-    );
-
-    set({ behaviours, students: updatedStudents });
+    if (bt) {
+      const bump = bt.type === "positive" ? 0.05 : (bt.type === "support" || bt.type === "growth" ? -0.03 : 0);
+      const updatedStudents = students.map(s =>
+        s.id === studentId ? { ...s, positiveRatio: Math.max(0, Math.min(1, (s.positiveRatio ?? 0.5) + bump)) } : s
+      );
+      set({ students: updatedStudents });
+    }
   },
 
   // Magic Moments (placeholder; plug real model later)
