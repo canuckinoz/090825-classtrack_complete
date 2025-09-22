@@ -32,16 +32,26 @@ const users = {
   }
 };
 const logs = [];
+const students = [
+  { id: 1, name: "Emma Thompson", recentActivity: "none", status: "thriving", positiveRatio: 0.9 },
+  { id: 2, name: "Liam Chen", recentActivity: "none", status: "growing",   positiveRatio: 0.7 },
+  { id: 3, name: "Sophie Taylor", recentActivity: "none", status: "resting",  positiveRatio: 0.4 },
+];
 
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (!token) return res.status(401).json({ message: 'Missing token' });
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) return res.status(403).json({ message: 'Invalid token' });
+  if (!token) {
+    return res.status(401).json({ message: 'Authentication token is required.' });
+  }
+
+  try {
+    const user = jwt.verify(token, JWT_SECRET);
     req.user = user;
     next();
-  });
+  } catch (err) {
+    return res.status(403).json({ message: 'Invalid or expired token.' });
+  }
 }
 
 // Register endpoint
@@ -83,6 +93,11 @@ app.post('/api/logs', authenticateToken, (req, res) => {
   const log = { ...req.body, user: req.user.username };
   logs.push(log);
   res.status(201).json(log);
+});
+
+// Fetch students
+app.get('/api/students', authenticateToken, (req, res) => {
+  res.json(students);
 });
 
 // Predictions endpoint - returns dummy data; replace with real model later

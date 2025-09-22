@@ -19,8 +19,8 @@ function Overlay({ onClose }) {
                 <button
                   key={i}
                   className="px-3 py-2 rounded-full border border-white/30 hover:bg-white/20"
-                  onClick={()=>{
-                    logBehaviour({ studentId:p.studentId, behaviourId:p.behaviourId });
+                  onClick={async ()=>{
+                    await logBehaviour({ studentId:p.studentId, behaviourId:p.behaviourId });
                     onClose();
                   }}
                 >
@@ -59,8 +59,8 @@ function Overlay({ onClose }) {
                 <button
                   key={b.id}
                   className="rounded-xl border-2 border-navy text-navy p-4 hover:bg-navy hover:text-white transition"
-                  onClick={()=>{
-                    logBehaviour({ studentId:selected, behaviourId:b.id });
+                  onClick={async ()=>{
+                    await logBehaviour({ studentId:selected, behaviourId:b.id });
                     onClose();
                   }}
                 >
