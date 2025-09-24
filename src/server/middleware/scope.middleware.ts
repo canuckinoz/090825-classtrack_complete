@@ -6,7 +6,7 @@ export function attachScopeFilters(
   _res: Response,
   next: NextFunction
 ) {
-  const user = req.user as UserClaims | undefined;
+  const user = (req as any).user as UserClaims | undefined;
   const filters: Record<string, unknown> = {};
   const scope = user?.scope || {};
   const role = user?.role;
@@ -27,6 +27,6 @@ export function attachScopeFilters(
     // CEO has global access; leave filters empty for global aggregates
   }
 
-  req.scopeFilters = filters;
+  (req as any).scopeFilters = filters;
   return next();
 }

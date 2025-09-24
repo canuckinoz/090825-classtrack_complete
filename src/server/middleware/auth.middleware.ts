@@ -21,7 +21,7 @@ export async function requireAuth(
       return res.status(401).json({ ok: false, error: 'unauthenticated' });
     const secret = process.env.JWT_SECRET || '';
     const decoded = jwt.verify(token, secret) as UserClaims;
-    req.user = decoded;
+    (req as any).user = { id: (decoded as any).userId, ...decoded } as any;
     return next();
   } catch (e) {
     return res.status(401).json({ ok: false, error: 'unauthenticated' });

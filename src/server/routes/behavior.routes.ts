@@ -15,7 +15,7 @@ behaviorRouter.get(
   attachScopeFilters,
   async (req, res, next) => {
     try {
-      const where = (req.scopeFilters || {}) as any;
+      const where = ((req as any).scopeFilters || {}) as any;
       const behaviors = await prisma.behaviourLog.findMany({ where });
       res.json({ ok: true, behaviors });
     } catch (e) {

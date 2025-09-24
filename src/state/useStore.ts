@@ -86,60 +86,49 @@ export const useStore = create<StoreState>()(
 
       return {
         ui: {},
+        // --- AUTH SLICE (replaced) ---
         auth: {
           user: null,
-          token: null,
           ready: false,
-          async login({ username, password }) {
-            const res = await fetch('/auth/login', {
-              method: 'POST',
-              credentials: 'include',
-              headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-              },
-              body: JSON.stringify({ email: username, password }),
-            });
-            const parsed = (await res.json().catch(() => ({}))) as any;
-            if (!res.ok || !parsed?.ok)
-              throw new Error(parsed?.error || 'Invalid credentials');
-            const user = parsed.user as User;
-            set((state) => ({
-              auth: { ...state.auth, user, ready: true },
-            }));
-            return { user, token: get().auth.token || '' };
-          },
-          logout() {
-            set((state) => ({
-              auth: { ...state.auth, user: null, token: null },
-            }));
-          },
-          hydrateFromStorage() {
-            return get().auth;
-          },
+
           async bootstrap() {
             try {
-              const res = await fetch('/api/me', { credentials: 'include' });
-              const data = await res.json().catch(() => ({ ok: false }) as any);
-              set((state) => ({
-                auth: {
-                  ...state.auth,
-                  user: (data as any).ok ? (data as any).user : null,
-                  ready: true,
-                },
+              const r = await fetch('/api/me', { credentials: 'include' });
+              const j = (await r.json().catch(() => ({}))) as any;
+              set((s) => ({
+                auth: { ...s.auth, user: j?.ok ? j.user : null, ready: true },
               }));
-              // eslint-disable-next-line no-console
-              console.log(
-                '[AUTH/bootstrap] user=',
-                (data as any).ok ? (data as any).user : null
-              );
-            } catch (e: any) {
-              set((state) => ({
-                auth: { ...state.auth, user: null, ready: true },
-              }));
-              // eslint-disable-next-line no-console
-              console.warn('[AUTH/bootstrap] failed:', e?.message);
+            } catch {
+              set((s) => ({ auth: { ...s.auth, user: null, ready: true } }));
             }
+          },
+
+          async login({
+            username,
+            password,
+          }: {
+            username: string;
+            password: string;
+          }) {
+            const r = await fetch('/auth/login', {
+              method: 'POST',
+              credentials: 'include',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: username, password }),
+            });
+            const j = (await r.json().catch(() => ({}))) as any;
+            if (!r.ok || !j?.ok)
+              throw new Error(j?.error || `Login failed (${r.status})`);
+            const user = j.user as User;
+            set((s) => ({ auth: { ...s.auth, user, ready: true } }));
+            return { user, token: '' };
+          },
+
+          async logout() {
+            try {
+              await fetch('/auth/logout', { credentials: 'include' });
+            } catch {}
+            set((s) => ({ auth: { ...s.auth, user: null, ready: true } }));
           },
         },
         students: initialStudents,

@@ -1,0 +1,49 @@
+
+> classtrack@1.0.0 start
+> serve -s dist -l 5173
+
+ INFO  Accepting connections at http://localhost:5173
+ HTTP  9/20/2025 6:58:50 PM ::1 HEAD /
+ HTTP  9/20/2025 6:58:50 PM ::1 Returned 200 in 13 ms
+ HTTP  9/20/2025 6:59:26 PM ::1 GET /sw.js
+ HTTP  9/20/2025 6:59:26 PM ::1 Returned 304 in 3 ms
+ HTTP  9/20/2025 7:08:00 PM ::1 GET /sw.js
+ HTTP  9/20/2025 7:08:00 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 7:14:08 PM ::1 GET /sw.js
+ HTTP  9/20/2025 7:14:08 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 7:19:29 PM ::1 GET /sw.js
+ HTTP  9/20/2025 7:19:29 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 7:50:33 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/20/2025 7:50:33 PM ::1 Returned 200 in 5 ms
+ HTTP  9/20/2025 7:50:35 PM ::1 GET /sw.js
+ HTTP  9/20/2025 7:50:35 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 7:51:29 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/20/2025 7:51:29 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 8:03:18 PM ::1 GET /sw.js
+ HTTP  9/20/2025 8:03:18 PM ::1 Returned 304 in 3 ms
+ HTTP  9/20/2025 8:07:05 PM ::1 GET /sw.js
+ HTTP  9/20/2025 8:07:05 PM ::1 Returned 304 in 4 ms
+ HTTP  9/20/2025 8:07:06 PM ::1 GET /api/classes?tenantId=550e8400-e29b-41d4-a716-446655440000&schoolId=550e8400-e29b-41d4-a716-446655440001
+ HTTP  9/20/2025 8:07:06 PM ::1 Returned 200 in 2 ms
+ HTTP  9/20/2025 8:07:08 PM ::1 GET /sw.js
+ HTTP  9/20/2025 8:07:08 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 8:12:39 PM ::1 GET /sw.js
+ HTTP  9/20/2025 8:12:39 PM ::1 Returned 304 in 2 ms
+ HTTP  9/20/2025 8:13:29 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/20/2025 8:13:29 PM ::1 Returned 304 in 1 ms
+ HTTP  9/20/2025 8:18:34 PM ::1 GET /sw.js
+ HTTP  9/20/2025 8:18:34 PM ::1 Returned 304 in 3 ms
+ HTTP  9/21/2025 4:27:48 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/21/2025 4:27:48 PM ::1 Returned 304 in 5 ms
+ HTTP  9/21/2025 4:27:50 PM ::1 GET /sw.js
+ HTTP  9/21/2025 4:27:50 PM ::1 Returned 304 in 2 ms
+ HTTP  9/21/2025 4:47:33 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/21/2025 4:47:33 PM ::1 Returned 304 in 2 ms
+ HTTP  9/21/2025 4:47:35 PM ::1 GET /sw.js
+ HTTP  9/21/2025 4:47:35 PM ::1 Returned 304 in 1 ms
+ HTTP  9/21/2025 4:47:38 PM ::1 POST /auth/login
+ HTTP  9/21/2025 4:47:38 PM ::1 Returned 200 in 2 ms
+ HTTP  9/21/2025 4:51:13 PM ::1 GET /sw.js
+ HTTP  9/21/2025 4:51:13 PM ::1 Returned 304 in 2 ms
+ HTTP  9/21/2025 4:51:22 PM ::1 GET /.well-known/appspecific/com.chrome.devtools.json
+ HTTP  9/21/2025 4:51:22 PM ::1 Returned 304 in 0 ms

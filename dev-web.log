@@ -1,0 +1,187 @@
+8:27:56 PM [vite] (client) Re-optimizing dependencies because lockfile has changed
+
+  VITE v7.1.6  ready in 237 ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+11:28:29 AM [vite] (client) page reload src/index.jsx
+11:28:30 AM [vite] (client) ✨ new dependencies optimized: zustand, zustand/middleware
+11:28:30 AM [vite] (client) ✨ optimized dependencies changed. reloading
+11:28:34 AM [vite] (client) page reload src/index.jsx
+11:43:05 AM [vite] (client) page reload src/index.jsx
+11:43:09 AM [vite] (client) page reload src/index.jsx
+11:43:13 AM [vite] (client) page reload src/index.jsx
+11:43:14 AM [vite] (client) page reload src/index.jsx
+11:43:15 AM [vite] (client) page reload src/index.jsx
+3:17:21 PM [vite] (client) page reload src/index.jsx
+3:17:22 PM [vite] (client) Pre-transform error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+3:17:22 PM [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29628:10)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+      at async viteTransformMiddleware (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:27187:20)
+3:17:22 PM [vite] (client) ✨ new dependencies optimized: react-dom/client, react-router-dom
+3:17:22 PM [vite] (client) ✨ optimized dependencies changed. reloading
+3:17:27 PM [vite] (client) page reload src/index.jsx
+3:17:27 PM [vite] (client) Pre-transform error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+3:17:27 PM [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29628:10)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+      at async viteTransformMiddleware (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:27187:20)
+3:20:21 PM [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29628:10)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+      at async viteTransformMiddleware (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:27187:20)
+3:31:32 PM [vite] Internal server error: Failed to parse source for import analysis because the content contains invalid JS syntax. If you are using JSX, make sure to name the file with the .jsx or .tsx extension.
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js:21:25
+  19 |            <PrivateRoute>
+  20 |              <AppLayout />
+  21 |            </PrivateRoute>
+     |                           ^
+  22 |          }
+  23 |        >
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29628:10)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+      at async viteTransformMiddleware (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:27187:20)
+3:39:01 PM [vite] (client) Pre-transform error: Failed to load url /src/App.js (resolved id: /Users/Kevin/Downloads/090825 classtrack_complete/src/App.js) in /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx. Does the file exist?
+3:41:29 PM [vite] (client) page reload src/index.jsx
+3:41:29 PM [vite] Internal server error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at normalizeUrl (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29665:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29723:32
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29691:4)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+3:41:29 PM [vite] (client) Pre-transform error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+3:41:29 PM [vite] (client) Pre-transform error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+3:41:34 PM [vite] (client) page reload src/index.jsx
+3:41:34 PM [vite] (client) Pre-transform error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+3:41:34 PM [vite] (client) Pre-transform error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+3:41:34 PM [vite] Internal server error: Failed to resolve import "./App.jsx" from "src/index.jsx". Does the file exist?
+  Plugin: vite:import-analysis
+  File: /Users/Kevin/Downloads/090825 classtrack_complete/src/index.jsx:26:16
+  20 |  import { createRoot } from "react-dom/client";
+  21 |  import { BrowserRouter } from "react-router-dom";
+  22 |  import App from "./App.jsx";
+     |                   ^
+  23 |  const el = document.getElementById("root");
+  24 |  createRoot(el).render(
+      at TransformPluginContext._formatLog (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31185:43)
+      at TransformPluginContext.error (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:31182:14)
+      at normalizeUrl (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29665:18)
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29723:32
+      at async Promise.all (index 5)
+      at async TransformPluginContext.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:29691:4)
+      at async EnvironmentPluginContainer.transform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:30984:14)
+      at async loadAndTransform (file:///Users/Kevin/Downloads/090825%20classtrack_complete/node_modules/vite/dist/node/chunks/dep-D5b0Zz6C.js:26116:26)
+3:44:00 PM [vite] (client) page reload src/App.jsx
+3:44:06 PM [vite] (client) hmr update /src/App.jsx
+3:45:56 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+3:46:01 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+3:50:09 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+3:50:14 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+3:50:38 PM [vite] (client) hmr update /src/features/weather/index.jsx
+3:50:43 PM [vite] (client) hmr update /src/features/weather/index.jsx
+3:53:08 PM [vite] (client) hmr update /src/App.jsx
+3:53:13 PM [vite] (client) hmr update /src/App.jsx
+3:58:32 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+3:58:37 PM [vite] (client) hmr update /src/layouts/AppLayout.jsx
+4:00:30 PM [vite] (client) hmr update /src/features/weather/index.jsx
+4:00:40 PM [vite] (client) hmr update /src/features/weather/index.jsx
+4:06:05 PM [vite] (client) hmr update /src/App.jsx

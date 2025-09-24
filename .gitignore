@@ -1,3 +1,49 @@
 node_modules
 
 /generated/prisma
+
+# macOS
+.DS_Store
+# deps/build
+node_modules
+dist
+build
+coverage
+.vite
+.cache
+.env*
+
+# macOS
+.DS_Store
+# build/deps
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.cache/
+.env*
+
+# OS
+.DS_Store
+# build/deps
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.cache/
+# env
+.env*
+
+# OS
+.DS_Store
+# build/deps
+node_modules/
+dist/
+build/
+coverage/
+.vite/
+.cache/
+# env
+.env*

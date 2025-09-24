@@ -19,7 +19,7 @@ export function bearerGuard(req: Request, res: Response, next: NextFunction) {
   const claims = verifyJwt(token);
   if (!claims)
     return res.status(401).json({ ok: false, error: 'unauthenticated' });
-  // @ts-expect-error augment at runtime
-  req.user = claims;
+  // Ensure an id field exists on req.user for downstream types
+  (req as any).user = { id: (claims as any).userId, ...claims } as any;
   next();
 }

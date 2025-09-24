@@ -1,0 +1,5 @@
+[dotenv@17.2.2] injecting env (6) from .env -- tip: 🔐 encrypt with Dotenvx: https://dotenvx.com
+[dev-portal] ENABLED at /dev/*
+[api] listening on http://localhost:3005
+[probe] GET /api/health -> 200 PASS
+[probe] GET /dev/dev-login?role=teacher -> 303 (expected 303)
