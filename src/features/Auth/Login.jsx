@@ -1,3 +1,4 @@
+cursor/clean-update
 import React, { useState } from 'react';
 import { useStore } from '../../state/useStore';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -5,16 +6,30 @@ import { useNavigate, useLocation } from 'react-router-dom';
 /**
  * Login component for authenticating users.  It posts credentials to the
  * backend server and stores the returned token and user in the store.
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useStore } from '../../state/useStore';
+
+/**
+ * Login component for authenticating users.  It uses the Zustand store
+ * for state management and authentication logic.
+main
  */
 export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+cursor/clean-update
+
+  const { login, isAuthenticated, error } = useStore();
+main
   const navigate = useNavigate();
   const authLogin = useStore((s) => s.auth.login);
   const location = useLocation();
 
-  async function handleSubmit(e) {
+  const handleSubmit = (e) => {
     e.preventDefault();
+cursor/clean-update
     try {
       await authLogin({ username, password });
       const redirectTo = location.state?.from?.pathname || '/dashboard';
@@ -22,8 +37,16 @@ export default function Login() {
     } catch (err) {
       // In a later step, surface this via UI. For now, console.
       console.error(err);
+
+    login(username, password);
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+main
     }
-  }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="flex justify-center items-center h-full">
@@ -32,6 +55,7 @@ export default function Login() {
         className="bg-white p-6 rounded shadow w-80 space-y-4"
       >
         <h2 className="text-xl font-semibold text-center">Login</h2>
+        {error && <p className="text-red-500 text-center">{error}</p>}
         <div>
           <label className="block text-sm font-medium mb-1">Username</label>
           <input
