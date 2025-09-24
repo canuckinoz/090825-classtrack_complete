@@ -1,0 +1,860 @@
+import { r as o, j as e } from './ui-vendor-D6t9Fqz9.js';
+import { u as N } from './index-DxxIEH0w.js';
+import './react-vendor-DTDVRx5A.js';
+import './data-vendor-CMp-lYVg.js';
+const k = [
+    { id: 'profile', name: 'Profile', icon: '👤' },
+    { id: 'preferences', name: 'Preferences', icon: '⚙️' },
+    { id: 'notifications', name: 'Notifications', icon: '🔔' },
+    { id: 'behavior', name: 'Behavior Tracking', icon: '📝' },
+    { id: 'privacy', name: 'Privacy', icon: '🔒' },
+    { id: 'data', name: 'Data Management', icon: '💾' },
+  ],
+  S = [
+    {
+      id: 'behavior_alerts',
+      label: 'Behavior Alerts',
+      description: 'Get notified of concerning behavior patterns',
+    },
+    {
+      id: 'positive_feedback',
+      label: 'Positive Feedback',
+      description: 'Celebrate student achievements',
+    },
+    {
+      id: 'class_reminders',
+      label: 'Class Reminders',
+      description: 'Daily class preparation reminders',
+    },
+    {
+      id: 'system_updates',
+      label: 'System Updates',
+      description: 'New features and system announcements',
+    },
+  ],
+  w = [
+    {
+      id: 'auto_save',
+      label: 'Auto-save Behavior Logs',
+      description: 'Automatically save drafts every 30 seconds',
+    },
+    {
+      id: 'quick_entry',
+      label: 'Quick Entry Mode',
+      description: 'Streamlined interface for rapid behavior logging',
+    },
+    {
+      id: 'voice_notes',
+      label: 'Voice Notes',
+      description: 'Record behavior notes using voice input',
+    },
+    {
+      id: 'photo_attachments',
+      label: 'Photo Attachments',
+      description: 'Attach photos to behavior logs',
+    },
+  ];
+function E() {
+  const { user: c, selectedClassId: b } = N(),
+    [x, y] = o.useState('profile'),
+    [a, h] = o.useState({
+      displayName: c?.name || '',
+      email: c?.email || '',
+      timezone: 'Australia/Sydney',
+      theme: 'light',
+      language: 'en',
+      dateFormat: 'DD/MM/YYYY',
+      timeFormat: '12h',
+      notifications: {
+        behavior_alerts: !0,
+        positive_feedback: !0,
+        class_reminders: !1,
+        system_updates: !0,
+      },
+      behaviorPrefs: {
+        auto_save: !0,
+        quick_entry: !1,
+        voice_notes: !1,
+        photo_attachments: !0,
+      },
+      dataSharing: !1,
+      analyticsOptIn: !0,
+      auditLogging: !0,
+      autoBackup: !0,
+      exportFormat: 'csv',
+      retentionPeriod: '7years',
+    }),
+    [m, d] = o.useState(!1),
+    [g, p] = o.useState(!1),
+    [u, l] = o.useState('');
+  o.useEffect(() => {
+    (async () => {
+      try {
+        d(!0);
+        const r = await fetch('/api/user-settings', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        if (r.ok) {
+          const n = await r.json();
+          h((i) => ({ ...i, ...n }));
+        }
+      } catch (r) {
+        console.error('Failed to load settings:', r);
+      } finally {
+        d(!1);
+      }
+    })();
+  }, []);
+  const v = async () => {
+      try {
+        (p(!0),
+          l(''),
+          (
+            await fetch('/api/user-settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(a),
+            })
+          ).ok
+            ? (l('✅ Settings saved successfully!'),
+              setTimeout(() => l(''), 3e3))
+            : l('❌ Failed to save settings. Please try again.'));
+      } catch (s) {
+        (console.error('Failed to save settings:', s),
+          l('❌ Error saving settings. Please try again.'));
+      } finally {
+        p(!1);
+      }
+    },
+    t = (s, r, n) => {
+      h((i) => ({
+        ...i,
+        [s]: typeof i[s] == 'object' ? { ...i[s], [r]: n } : n,
+      }));
+    },
+    f = async () => {
+      try {
+        d(!0);
+        const s = await fetch(
+          `/api/export-data?classId=${b}&format=${a.exportFormat}`,
+          { method: 'GET', headers: { 'Content-Type': 'application/json' } }
+        );
+        if (s.ok) {
+          const r = await s.blob(),
+            n = window.URL.createObjectURL(r),
+            i = document.createElement('a');
+          ((i.href = n),
+            (i.download = `classtrack-data-${new Date().toISOString().split('T')[0]}.${a.exportFormat}`),
+            document.body.appendChild(i),
+            i.click(),
+            window.URL.revokeObjectURL(n),
+            document.body.removeChild(i),
+            l('✅ Data export completed!'));
+        } else l('❌ Failed to export data.');
+      } catch (s) {
+        (console.error('Export failed:', s), l('❌ Error exporting data.'));
+      } finally {
+        d(!1);
+      }
+    },
+    j = () => {
+      switch (x) {
+        case 'profile':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Profile Information',
+                }),
+                e.jsxs('div', {
+                  className: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+                  children: [
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'display-name-input',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Display Name',
+                        }),
+                        e.jsx('input', {
+                          id: 'display-name-input',
+                          type: 'text',
+                          value: a.displayName,
+                          onChange: (s) => t('displayName', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'email-input',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Email',
+                        }),
+                        e.jsx('input', {
+                          id: 'email-input',
+                          type: 'email',
+                          value: a.email,
+                          onChange: (s) => t('email', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'timezone-select',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Timezone',
+                        }),
+                        e.jsxs('select', {
+                          id: 'timezone-select',
+                          value: a.timezone,
+                          onChange: (s) => t('timezone', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                          children: [
+                            e.jsx('option', {
+                              value: 'Australia/Sydney',
+                              children: 'Australia/Sydney',
+                            }),
+                            e.jsx('option', {
+                              value: 'Australia/Melbourne',
+                              children: 'Australia/Melbourne',
+                            }),
+                            e.jsx('option', {
+                              value: 'Australia/Brisbane',
+                              children: 'Australia/Brisbane',
+                            }),
+                            e.jsx('option', {
+                              value: 'Australia/Perth',
+                              children: 'Australia/Perth',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('div', {
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Role',
+                        }),
+                        e.jsx('div', {
+                          className:
+                            'px-3 py-2 bg-gray-100 border border-gray-300 rounded-md text-gray-700',
+                          children: c?.role || 'Unknown',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          });
+        case 'preferences':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Application Preferences',
+                }),
+                e.jsxs('div', {
+                  className: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+                  children: [
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'theme-select',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Theme',
+                        }),
+                        e.jsxs('select', {
+                          id: 'theme-select',
+                          value: a.theme,
+                          onChange: (s) => t('theme', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                          children: [
+                            e.jsx('option', {
+                              value: 'light',
+                              children: 'Light',
+                            }),
+                            e.jsx('option', {
+                              value: 'dark',
+                              children: 'Dark',
+                            }),
+                            e.jsx('option', {
+                              value: 'auto',
+                              children: 'Auto (System)',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'language-select',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Language',
+                        }),
+                        e.jsxs('select', {
+                          id: 'language-select',
+                          value: a.language,
+                          onChange: (s) => t('language', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                          children: [
+                            e.jsx('option', {
+                              value: 'en',
+                              children: 'English',
+                            }),
+                            e.jsx('option', {
+                              value: 'es',
+                              children: 'Español',
+                            }),
+                            e.jsx('option', {
+                              value: 'fr',
+                              children: 'Français',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'date-format-select',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Date Format',
+                        }),
+                        e.jsxs('select', {
+                          id: 'date-format-select',
+                          value: a.dateFormat,
+                          onChange: (s) => t('dateFormat', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                          children: [
+                            e.jsx('option', {
+                              value: 'DD/MM/YYYY',
+                              children: 'DD/MM/YYYY',
+                            }),
+                            e.jsx('option', {
+                              value: 'MM/DD/YYYY',
+                              children: 'MM/DD/YYYY',
+                            }),
+                            e.jsx('option', {
+                              value: 'YYYY-MM-DD',
+                              children: 'YYYY-MM-DD',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      children: [
+                        e.jsx('label', {
+                          htmlFor: 'time-format-select',
+                          className:
+                            'block text-sm font-medium text-gray-700 mb-2',
+                          children: 'Time Format',
+                        }),
+                        e.jsxs('select', {
+                          id: 'time-format-select',
+                          value: a.timeFormat,
+                          onChange: (s) => t('timeFormat', '', s.target.value),
+                          className:
+                            'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                          children: [
+                            e.jsx('option', {
+                              value: '12h',
+                              children: '12 Hour',
+                            }),
+                            e.jsx('option', {
+                              value: '24h',
+                              children: '24 Hour',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          });
+        case 'notifications':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Notification Preferences',
+                }),
+                e.jsx('div', {
+                  className: 'space-y-4',
+                  children: S.map((s) =>
+                    e.jsxs(
+                      'div',
+                      {
+                        className: 'flex items-start',
+                        children: [
+                          e.jsx('div', {
+                            className: 'flex items-center h-5',
+                            children: e.jsx('input', {
+                              id: s.id,
+                              type: 'checkbox',
+                              checked: a.notifications[s.id],
+                              onChange: (r) =>
+                                t('notifications', s.id, r.target.checked),
+                              className:
+                                'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                            }),
+                          }),
+                          e.jsxs('div', {
+                            className: 'ml-3',
+                            children: [
+                              e.jsx('label', {
+                                htmlFor: s.id,
+                                className: 'text-sm font-medium text-gray-700',
+                                children: s.label,
+                              }),
+                              e.jsx('p', {
+                                className: 'text-sm text-gray-500',
+                                children: s.description,
+                              }),
+                            ],
+                          }),
+                        ],
+                      },
+                      s.id
+                    )
+                  ),
+                }),
+              ],
+            }),
+          });
+        case 'behavior':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Behavior Tracking Preferences',
+                }),
+                e.jsx('div', {
+                  className: 'space-y-4',
+                  children: w.map((s) =>
+                    e.jsxs(
+                      'div',
+                      {
+                        className: 'flex items-start',
+                        children: [
+                          e.jsx('div', {
+                            className: 'flex items-center h-5',
+                            children: e.jsx('input', {
+                              id: s.id,
+                              type: 'checkbox',
+                              checked: a.behaviorPrefs[s.id],
+                              onChange: (r) =>
+                                t('behaviorPrefs', s.id, r.target.checked),
+                              className:
+                                'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                            }),
+                          }),
+                          e.jsxs('div', {
+                            className: 'ml-3',
+                            children: [
+                              e.jsx('label', {
+                                htmlFor: s.id,
+                                className: 'text-sm font-medium text-gray-700',
+                                children: s.label,
+                              }),
+                              e.jsx('p', {
+                                className: 'text-sm text-gray-500',
+                                children: s.description,
+                              }),
+                            ],
+                          }),
+                        ],
+                      },
+                      s.id
+                    )
+                  ),
+                }),
+              ],
+            }),
+          });
+        case 'privacy':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Privacy Settings',
+                }),
+                e.jsxs('div', {
+                  className: 'space-y-4',
+                  children: [
+                    e.jsxs('div', {
+                      className: 'flex items-start',
+                      children: [
+                        e.jsx('div', {
+                          className: 'flex items-center h-5',
+                          children: e.jsx('input', {
+                            id: 'dataSharing',
+                            type: 'checkbox',
+                            checked: a.dataSharing,
+                            onChange: (s) =>
+                              t('dataSharing', '', s.target.checked),
+                            className:
+                              'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                          }),
+                        }),
+                        e.jsxs('div', {
+                          className: 'ml-3',
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'dataSharing',
+                              className: 'text-sm font-medium text-gray-700',
+                              children: 'Data Sharing',
+                            }),
+                            e.jsx('p', {
+                              className: 'text-sm text-gray-500',
+                              children:
+                                'Allow anonymized data sharing for research and improvement',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      className: 'flex items-start',
+                      children: [
+                        e.jsx('div', {
+                          className: 'flex items-center h-5',
+                          children: e.jsx('input', {
+                            id: 'analyticsOptIn',
+                            type: 'checkbox',
+                            checked: a.analyticsOptIn,
+                            onChange: (s) =>
+                              t('analyticsOptIn', '', s.target.checked),
+                            className:
+                              'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                          }),
+                        }),
+                        e.jsxs('div', {
+                          className: 'ml-3',
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'analyticsOptIn',
+                              className: 'text-sm font-medium text-gray-700',
+                              children: 'Usage Analytics',
+                            }),
+                            e.jsx('p', {
+                              className: 'text-sm text-gray-500',
+                              children:
+                                'Help improve ClassTrack by sharing anonymous usage data',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      className: 'flex items-start',
+                      children: [
+                        e.jsx('div', {
+                          className: 'flex items-center h-5',
+                          children: e.jsx('input', {
+                            id: 'auditLogging',
+                            type: 'checkbox',
+                            checked: a.auditLogging,
+                            onChange: (s) =>
+                              t('auditLogging', '', s.target.checked),
+                            className:
+                              'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                          }),
+                        }),
+                        e.jsxs('div', {
+                          className: 'ml-3',
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'auditLogging',
+                              className: 'text-sm font-medium text-gray-700',
+                              children: 'Audit Logging',
+                            }),
+                            e.jsx('p', {
+                              className: 'text-sm text-gray-500',
+                              children:
+                                'Keep detailed logs of all actions for compliance (required)',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          });
+        case 'data':
+          return e.jsx('div', {
+            className: 'space-y-6',
+            children: e.jsxs('div', {
+              children: [
+                e.jsx('h3', {
+                  className: 'text-lg font-medium text-gray-900 mb-4',
+                  children: 'Data Management',
+                }),
+                e.jsxs('div', {
+                  className: 'space-y-4',
+                  children: [
+                    e.jsxs('div', {
+                      className: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+                      children: [
+                        e.jsxs('div', {
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'export-format-select',
+                              className:
+                                'block text-sm font-medium text-gray-700 mb-2',
+                              children: 'Export Format',
+                            }),
+                            e.jsxs('select', {
+                              id: 'export-format-select',
+                              value: a.exportFormat,
+                              onChange: (s) =>
+                                t('exportFormat', '', s.target.value),
+                              className:
+                                'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                              children: [
+                                e.jsx('option', {
+                                  value: 'csv',
+                                  children: 'CSV',
+                                }),
+                                e.jsx('option', {
+                                  value: 'json',
+                                  children: 'JSON',
+                                }),
+                                e.jsx('option', {
+                                  value: 'pdf',
+                                  children: 'PDF',
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                        e.jsxs('div', {
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'retention-period-select',
+                              className:
+                                'block text-sm font-medium text-gray-700 mb-2',
+                              children: 'Retention Period',
+                            }),
+                            e.jsxs('select', {
+                              id: 'retention-period-select',
+                              value: a.retentionPeriod,
+                              onChange: (s) =>
+                                t('retentionPeriod', '', s.target.value),
+                              className:
+                                'w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500',
+                              children: [
+                                e.jsx('option', {
+                                  value: '1year',
+                                  children: '1 Year',
+                                }),
+                                e.jsx('option', {
+                                  value: '3years',
+                                  children: '3 Years',
+                                }),
+                                e.jsx('option', {
+                                  value: '7years',
+                                  children: '7 Years (Compliance)',
+                                }),
+                              ],
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      className: 'flex items-start',
+                      children: [
+                        e.jsx('div', {
+                          className: 'flex items-center h-5',
+                          children: e.jsx('input', {
+                            id: 'autoBackup',
+                            type: 'checkbox',
+                            checked: a.autoBackup,
+                            onChange: (s) =>
+                              t('autoBackup', '', s.target.checked),
+                            className:
+                              'h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded',
+                          }),
+                        }),
+                        e.jsxs('div', {
+                          className: 'ml-3',
+                          children: [
+                            e.jsx('label', {
+                              htmlFor: 'autoBackup',
+                              className: 'text-sm font-medium text-gray-700',
+                              children: 'Automatic Backup',
+                            }),
+                            e.jsx('p', {
+                              className: 'text-sm text-gray-500',
+                              children: 'Automatically backup your data daily',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                    e.jsxs('div', {
+                      className: 'pt-4 border-t border-gray-200',
+                      children: [
+                        e.jsx('h4', {
+                          className: 'text-md font-medium text-gray-900 mb-2',
+                          children: 'Data Export',
+                        }),
+                        e.jsxs('p', {
+                          className: 'text-sm text-gray-600 mb-4',
+                          children: [
+                            'Export all your class data in ',
+                            a.exportFormat.toUpperCase(),
+                            ' format.',
+                          ],
+                        }),
+                        e.jsx('button', {
+                          onClick: f,
+                          disabled: m,
+                          className:
+                            'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50',
+                          children: m ? 'Exporting...' : 'Export Data',
+                        }),
+                      ],
+                    }),
+                  ],
+                }),
+              ],
+            }),
+          });
+        default:
+          return e.jsx('div', { children: 'Select a settings section' });
+      }
+    };
+  return m
+    ? e.jsx('div', {
+        className:
+          'min-h-[60vh] rounded-xl p-8 bg-white border-2 border-dashed border-gray-300 flex items-center justify-center',
+        'data-ct': 'settings',
+        children: e.jsxs('div', {
+          className: 'text-center',
+          children: [
+            e.jsx('div', { className: 'text-6xl mb-4', children: '⚙️' }),
+            e.jsx('h3', {
+              className: 'text-xl font-semibold text-gray-900 mb-2',
+              children: 'Loading Settings...',
+            }),
+            e.jsx('p', {
+              className: 'text-gray-600',
+              children: 'Please wait while we load your preferences.',
+            }),
+          ],
+        }),
+      })
+    : e.jsxs('div', {
+        className:
+          'min-h-[60vh] rounded-xl p-8 bg-white border border-gray-200',
+        'data-ct': 'settings',
+        children: [
+          e.jsxs('div', {
+            className: 'mb-8',
+            children: [
+              e.jsx('h2', {
+                className: 'text-2xl font-semibold text-gray-900 mb-2',
+                children: '⚙️ Settings',
+              }),
+              e.jsx('p', {
+                className: 'text-gray-600',
+                children:
+                  'Customize your ClassTrack experience and preferences.',
+              }),
+            ],
+          }),
+          e.jsxs('div', {
+            className: 'grid grid-cols-1 lg:grid-cols-4 gap-8',
+            children: [
+              e.jsx('div', {
+                className: 'lg:col-span-1',
+                children: e.jsx('nav', {
+                  className: 'space-y-2',
+                  children: k.map((s) =>
+                    e.jsxs(
+                      'button',
+                      {
+                        onClick: () => y(s.id),
+                        className: `w-full text-left px-4 py-3 rounded-lg transition-colors ${x === s.id ? 'bg-blue-100 text-blue-900 border border-blue-200' : 'text-gray-700 hover:bg-gray-100'}`,
+                        children: [
+                          e.jsx('span', {
+                            className: 'mr-3',
+                            children: s.icon,
+                          }),
+                          s.name,
+                        ],
+                      },
+                      s.id
+                    )
+                  ),
+                }),
+              }),
+              e.jsxs('div', {
+                className: 'lg:col-span-3',
+                children: [
+                  j(),
+                  e.jsxs('div', {
+                    className: 'mt-8 pt-6 border-t border-gray-200',
+                    children: [
+                      u &&
+                        e.jsx('div', {
+                          className: `mb-4 p-4 rounded-md ${u.includes('✅') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`,
+                          children: u,
+                        }),
+                      e.jsx('div', {
+                        className: 'flex justify-end',
+                        children: e.jsx('button', {
+                          onClick: v,
+                          disabled: g,
+                          className:
+                            'px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors',
+                          children: g ? 'Saving...' : 'Save Settings',
+                        }),
+                      }),
+                    ],
+                  }),
+                ],
+              }),
+            ],
+          }),
+        ],
+      });
+}
+export { E as default };

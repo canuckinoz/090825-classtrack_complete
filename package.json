@@ -3,18 +3,52 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "react-scripts start",
+    "dev": "vite",
+    "start": "serve -s build -l 5173",
+    "preview": "vite preview",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "server": "node server/index.js"
+    "test:rbac": "node tests/run-rbac.js",
+    "test:api": "node tests/run-api.js",
+    "test:e2e": "playwright test",
+    "server": "node server/index.js",
+    "server:dev": "PORT=3005 node server/index.js",
+    "web:dev": "HOST=0.0.0.0 PORT=5173 npm run dev",
+    "prepare": "husky install",
+    "format": "prettier --write .",
+    "lint": "eslint src server tests packages --ext .js,.jsx,.ts,.tsx --no-error-on-unmatched-pattern",
+    "precommit": "lint-staged",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev -n init",
+    "prisma:seed": "node prisma/seed.js"
+  },
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 50,
+        "functions": 50,
+        "lines": 60,
+        "statements": 60
+      }
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,md}": "prettier --check",
+    "*.{js,jsx,ts,tsx}": "eslint"
   },
   "dependencies": {
+    "@prisma/client": "^6.16.2",
     "autoprefixer": "^10.4.20",
     "axios": "^1.6.8",
     "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^8.1.0",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "http-proxy-middleware": "^3.0.5",
     "jsonwebtoken": "^9.0.2",
     "postcss": "^8.4.38",
     "react": "^18.3.1",
@@ -22,13 +56,29 @@
     "react-router-dom": "^6.23.0",
     "react-scripts": "5.0.1",
     "tailwindcss": "^3.4.3",
+    "zod": "^4.1.9",
     "zustand": "^5.0.7"
   },
   "devDependencies": {
+    "@playwright/test": "^1.55.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
-    "@testing-library/user-event": "^14.5.2"
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "husky": "^9.1.7",
+    "jest": "^30.1.3",
+    "lint-staged": "^16.1.6",
+    "prettier": "^3.6.2",
+    "prisma": "^6.16.2",
+    "serve": "^14.2.5",
+    "supertest": "^7.1.4",
+    "ts-jest": "^29.4.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   },
   "proxy": "http://localhost:5001",
   "browserslist": {

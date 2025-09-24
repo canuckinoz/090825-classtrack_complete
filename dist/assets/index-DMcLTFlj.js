@@ -1,0 +1,368 @@
+import { r, j as e } from './ui-vendor-D6t9Fqz9.js';
+import './react-vendor-DTDVRx5A.js';
+async function h(t) {
+  try {
+    return navigator.clipboard && window.isSecureContext
+      ? (await navigator.clipboard.writeText(t), !0)
+      : d(t);
+  } catch (o) {
+    return (console.warn('Clipboard API failed, trying fallback:', o), d(t));
+  }
+}
+function d(t) {
+  try {
+    const o = document.createElement('textarea');
+    ((o.value = t),
+      (o.style.position = 'fixed'),
+      (o.style.left = '-999999px'),
+      (o.style.top = '-999999px'),
+      (o.style.opacity = '0'),
+      document.body.appendChild(o),
+      o.focus(),
+      o.select());
+    const i = document.execCommand('copy');
+    return (document.body.removeChild(o), i);
+  } catch (o) {
+    return (console.error('Fallback clipboard copy failed:', o), !1);
+  }
+}
+function u({ strategy: t }) {
+  const [o, i] = r.useState(!1),
+    l = async () => {
+      (await h(t.script)) && (i(!0), setTimeout(() => i(!1), 2e3));
+    },
+    a = (s) => {
+      switch (s) {
+        case 'Self-Regulation':
+          return 'bg-sage text-white';
+        case 'Social Skills':
+          return 'bg-lavender text-white';
+        case 'Executive Function':
+          return 'bg-navy text-white';
+        case 'Emotional Skills':
+          return 'bg-yellowAccent text-navy';
+        default:
+          return 'bg-gray-500 text-white';
+      }
+    };
+  return e.jsxs('div', {
+    className:
+      'bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow',
+    children: [
+      e.jsxs('div', {
+        className: 'p-6',
+        children: [
+          e.jsxs('div', {
+            className: 'flex items-start justify-between mb-3',
+            children: [
+              e.jsx('h3', {
+                className: 'text-lg font-semibold text-gray-900 leading-tight',
+                children: t.title,
+              }),
+              e.jsx('span', {
+                className: `px-3 py-1 rounded-full text-xs font-medium ${a(t.category)}`,
+                children: t.category,
+              }),
+            ],
+          }),
+          e.jsx('p', {
+            className: 'text-gray-600 text-sm leading-relaxed mb-4',
+            children: t.description,
+          }),
+          e.jsxs('div', {
+            className: 'bg-gray-50 rounded-lg p-3 mb-4',
+            children: [
+              e.jsx('div', {
+                className: 'text-xs text-gray-500 mb-2 font-medium',
+                children: 'Script Preview:',
+              }),
+              e.jsxs('p', {
+                className: 'text-sm text-gray-700 italic leading-relaxed',
+                children: ['"', t.script.substring(0, 100), '..."'],
+              }),
+            ],
+          }),
+          e.jsx('button', {
+            onClick: l,
+            className: `w-full py-2 px-4 rounded-lg font-medium transition-colors ${o ? 'bg-green-500 text-white' : 'bg-navy text-white hover:bg-navy-dark'}`,
+            children: o ? '✓ Copied!' : 'Copy Script',
+          }),
+        ],
+      }),
+      e.jsx('div', {
+        className: 'px-6 py-3 bg-gray-50 border-t border-gray-200',
+        children: e.jsxs('div', {
+          className: 'flex items-center justify-between text-xs text-gray-500',
+          children: [
+            e.jsxs('span', { children: ['Age: ', t.ageRange] }),
+            e.jsxs('span', { children: ['Duration: ', t.duration] }),
+          ],
+        }),
+      }),
+    ],
+  });
+}
+const g = [
+    {
+      id: 1,
+      title: 'Mindful Breathing Break',
+      category: 'Self-Regulation',
+      description:
+        'A simple breathing technique to help students calm their nervous system and regain focus during moments of stress or excitement.',
+      script:
+        "I can see you're feeling [emotion]. Let's take a moment together. Place your hand on your belly and take three slow breaths. Breathe in through your nose for 4 counts, hold for 2, then breathe out slowly for 6 counts. Let's do this together.",
+      ageRange: '5-18',
+      duration: '2-3 minutes',
+    },
+    {
+      id: 2,
+      title: 'Progressive Muscle Relaxation',
+      category: 'Self-Regulation',
+      description:
+        'Systematic tensing and releasing of muscle groups to reduce physical tension and promote calmness.',
+      script:
+        "Let's help your body feel more relaxed. Start with your feet - squeeze your toes tight for 5 seconds, then let them go completely loose. Feel the difference? Now let's move up to your legs, then your hands, and finally your face. Each time, squeeze tight, then let go completely.",
+      ageRange: '7-18',
+      duration: '5-7 minutes',
+    },
+    {
+      id: 3,
+      title: '5-4-3-2-1 Grounding',
+      category: 'Self-Regulation',
+      description:
+        'A sensory grounding technique that helps students reconnect with their environment and reduce overwhelming feelings.',
+      script:
+        'I want you to notice 5 things you can see right now. Look around and name them quietly. Now notice 4 things you can touch - maybe your desk, your clothes, your hair. Next, 3 things you can hear. Then 2 things you can smell. Finally, 1 thing you can taste. This helps bring you back to the present moment.',
+      ageRange: '6-18',
+      duration: '2-3 minutes',
+    },
+    {
+      id: 4,
+      title: 'I-Message Framework',
+      category: 'Social Skills',
+      description:
+        'Teaching students to express their feelings and needs assertively without blaming others, promoting healthy communication.',
+      script:
+        "When you want to tell someone how you feel, try saying: 'I feel [emotion] when [specific situation] because [reason]. I would like [what you need].' For example: 'I feel frustrated when people interrupt me because I want to finish my thought. I would like to complete my sentence.'",
+      ageRange: '8-18',
+      duration: '3-5 minutes',
+    },
+    {
+      id: 5,
+      title: 'Active Listening Practice',
+      category: 'Social Skills',
+      description:
+        "Helping students develop listening skills that show respect and understanding for others' perspectives.",
+      script:
+        "When someone is talking to you, show you're listening by: facing them, making eye contact, nodding, and asking questions like 'What happened next?' or 'How did that make you feel?' Try repeating back what you heard: 'So you're saying that...' This helps the other person feel heard and understood.",
+      ageRange: '6-18',
+      duration: '5-10 minutes',
+    },
+    {
+      id: 6,
+      title: 'Conflict Resolution Steps',
+      category: 'Social Skills',
+      description:
+        'A structured approach to resolving disagreements that focuses on understanding and finding solutions together.',
+      script:
+        "When you have a disagreement, try these steps: 1) Stop and take a breath. 2) Each person shares their side without interrupting. 3) Ask questions to understand the other person's perspective. 4) Brainstorm solutions together. 5) Choose a solution that works for both people. Remember, the goal is to solve the problem, not to win.",
+      ageRange: '8-18',
+      duration: '10-15 minutes',
+    },
+    {
+      id: 7,
+      title: 'Task Breakdown',
+      category: 'Executive Function',
+      description:
+        'Breaking complex tasks into smaller, manageable steps to reduce overwhelm and increase completion success.',
+      script:
+        "This task might seem big, but let's break it down together. What's the very first thing you need to do? Write that down as step 1. What comes next? That's step 2. Keep going until you have all the steps. Now you can focus on just one step at a time instead of the whole big task.",
+      ageRange: '7-18',
+      duration: '5-10 minutes',
+    },
+    {
+      id: 8,
+      title: 'Time Timer Visualization',
+      category: 'Executive Function',
+      description:
+        'Using visual timers to help students understand time concepts and manage their work periods effectively.',
+      script:
+        "I'm setting this timer for [X] minutes. You can see the red section getting smaller as time passes. This helps you know how much time you have left. When the timer goes off, we'll take a short break, then set it again for the next work period. This way you can work hard knowing a break is coming.",
+      ageRange: '5-18',
+      duration: 'Variable',
+    },
+    {
+      id: 9,
+      title: 'Checklist Creation',
+      category: 'Executive Function',
+      description:
+        'Creating personalized checklists to help students remember steps and track their progress on multi-step tasks.',
+      script:
+        "Let's make a checklist together. What are all the things you need to do? Write each one down. As you complete each item, check it off. This helps you remember what's done and what's left to do. You can also add checkboxes for things you want to double-check before finishing.",
+      ageRange: '6-18',
+      duration: '5-8 minutes',
+    },
+    {
+      id: 10,
+      title: 'Emotion Naming and Validation',
+      category: 'Emotional Skills',
+      description:
+        'Helping students identify and name their emotions while validating their feelings as normal and acceptable.',
+      script:
+        "I can see you're feeling something strong right now. Can you tell me what emotion you're feeling? It's okay to feel [emotion] - everyone feels this way sometimes. Your feelings are important and they make sense given what happened. Let's talk about what's causing this feeling and how we can work through it together.",
+      ageRange: '4-18',
+      duration: '3-5 minutes',
+    },
+    {
+      id: 11,
+      title: 'Calm-Down Corner Setup',
+      category: 'Emotional Skills',
+      description:
+        'Creating a designated space where students can go to regulate their emotions and practice calming strategies.',
+      script:
+        "This is your calm-down corner. You can come here whenever you need a moment to feel better. You can sit in the comfortable chair, use the stress ball, look at the calming pictures, or read a book. Take as much time as you need. When you're ready to talk or rejoin the group, just let me know.",
+      ageRange: '4-18',
+      duration: 'Variable',
+    },
+    {
+      id: 12,
+      title: 'Positive Self-Talk Practice',
+      category: 'Emotional Skills',
+      description:
+        'Teaching students to replace negative thoughts with helpful, encouraging statements that build confidence and resilience.',
+      script:
+        "When you're having a hard time, try talking to yourself the way you would talk to a good friend. Instead of 'I can't do this,' try 'This is challenging, but I can figure it out step by step.' Instead of 'I'm bad at this,' try 'I'm still learning, and that's okay.' What would you say to encourage a friend?",
+      ageRange: '7-18',
+      duration: '3-5 minutes',
+    },
+  ],
+  m = [
+    'All',
+    'Self-Regulation',
+    'Social Skills',
+    'Executive Function',
+    'Emotional Skills',
+  ];
+function f() {
+  const [t, o] = r.useState('All'),
+    [i, l] = r.useState(''),
+    a = r.useMemo(() => {
+      let s = g;
+      if ((t !== 'All' && (s = s.filter((n) => n.category === t)), i.trim())) {
+        const n = i.toLowerCase();
+        s = s.filter(
+          (c) =>
+            c.title.toLowerCase().includes(n) ||
+            c.description.toLowerCase().includes(n) ||
+            c.category.toLowerCase().includes(n)
+        );
+      }
+      return s;
+    }, [t, i]);
+  return e.jsx('div', {
+    className: 'min-h-screen bg-gray-50 p-4 md:p-6',
+    children: e.jsxs('div', {
+      className: 'max-w-7xl mx-auto space-y-6',
+      children: [
+        e.jsxs('div', {
+          className: 'bg-white rounded-xl shadow-sm p-6 border border-gray-200',
+          children: [
+            e.jsx('h1', {
+              className: 'text-3xl font-light text-navy mb-2',
+              children: 'Intervention Library',
+            }),
+            e.jsx('p', {
+              className: 'text-slate-600',
+              children:
+                'Evidence-based strategies to support student growth and development. Copy scripts for immediate use.',
+            }),
+          ],
+        }),
+        e.jsxs('div', {
+          className: 'bg-white rounded-xl shadow-sm p-6 border border-gray-200',
+          children: [
+            e.jsxs('div', {
+              className: 'flex flex-col md:flex-row gap-4',
+              children: [
+                e.jsxs('div', {
+                  className: 'flex-1',
+                  children: [
+                    e.jsx('label', {
+                      htmlFor: 'category-select',
+                      className: 'block text-sm font-medium text-gray-700 mb-2',
+                      children: 'Category',
+                    }),
+                    e.jsx('select', {
+                      id: 'category-select',
+                      value: t,
+                      onChange: (s) => o(s.target.value),
+                      className:
+                        'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent',
+                      children: m.map((s) =>
+                        e.jsx('option', { value: s, children: s }, s)
+                      ),
+                    }),
+                  ],
+                }),
+                e.jsxs('div', {
+                  className: 'flex-1',
+                  children: [
+                    e.jsx('label', {
+                      htmlFor: 'search-input',
+                      className: 'block text-sm font-medium text-gray-700 mb-2',
+                      children: 'Search Strategies',
+                    }),
+                    e.jsx('input', {
+                      id: 'search-input',
+                      type: 'text',
+                      value: i,
+                      onChange: (s) => l(s.target.value),
+                      placeholder:
+                        'Search by title, description, or category...',
+                      className:
+                        'w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-navy focus:border-transparent',
+                    }),
+                  ],
+                }),
+              ],
+            }),
+            e.jsxs('div', {
+              className: 'mt-4 text-sm text-gray-600',
+              children: [
+                a.length,
+                ' strategy',
+                a.length !== 1 ? 'ies' : '',
+                ' found',
+              ],
+            }),
+          ],
+        }),
+        e.jsx('div', {
+          className: 'grid md:grid-cols-2 lg:grid-cols-3 gap-6',
+          children: a.map((s) => e.jsx(u, { strategy: s }, s.id)),
+        }),
+        a.length === 0 &&
+          e.jsxs('div', {
+            className:
+              'bg-white rounded-xl shadow-sm p-12 border border-gray-200 text-center',
+            children: [
+              e.jsx('div', {
+                className: 'text-gray-400 text-6xl mb-4',
+                children: '🔍',
+              }),
+              e.jsx('h3', {
+                className: 'text-lg font-medium text-gray-900 mb-2',
+                children: 'No strategies found',
+              }),
+              e.jsx('p', {
+                className: 'text-gray-600',
+                children:
+                  'Try adjusting your filters or search terms to find relevant strategies.',
+              }),
+            ],
+          }),
+      ],
+    }),
+  });
+}
+export { f as default };

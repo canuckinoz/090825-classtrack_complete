@@ -1,20 +1,24 @@
-@keyframes drift { 
-  from { transform: translateX(-200px) } 
-  to { transform: translateX(calc(100vw + 200px)) } 
+@keyframes drift {
+  from {
+    transform: translateX(-200px);
+  }
+  to {
+    transform: translateX(calc(100vw + 200px));
+  }
 }
 
-.cloud { 
-  position: absolute; 
-  background: white; 
-  opacity: .4; 
-  border-radius: 100px; 
-  animation: drift 60s linear infinite 
+.cloud {
+  position: absolute;
+  background: white;
+  opacity: 0.4;
+  border-radius: 100px;
+  animation: drift 60s linear infinite;
 }
 
-.cloudLarge { 
-  width: 200px; 
-  height: 80px; 
-  top: 15%; 
-  animation-duration: 70s; 
-  animation-delay: -10s 
+.cloudLarge {
+  width: 200px;
+  height: 80px;
+  top: 15%;
+  animation-duration: 70s;
+  animation-delay: -10s;
 }

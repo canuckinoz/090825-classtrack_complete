@@ -1,0 +1,225 @@
+import { r as c, j as e } from './ui-vendor-D6t9Fqz9.js';
+import { u as x } from './index-DxxIEH0w.js';
+import './react-vendor-DTDVRx5A.js';
+import './data-vendor-CMp-lYVg.js';
+function j() {
+  const { selectedClassId: a } = x(),
+    [i, r] = c.useState([]),
+    [m, l] = c.useState(!0),
+    [n, o] = c.useState(null);
+  c.useEffect(() => {
+    a ? d(a) : (r([]), l(!1));
+  }, [a]);
+  const d = async (t) => {
+    try {
+      (l(!0), o(null));
+      const s = await fetch(`/api/ocean-data/${t}`);
+      if (!s.ok) throw new Error(`Failed to fetch ocean data: ${s.status}`);
+      const h = await s.json();
+      r(h);
+    } catch (s) {
+      o(s.message || 'Failed to load ocean data');
+    } finally {
+      l(!1);
+    }
+  };
+  return a
+    ? m
+      ? e.jsx('div', {
+          className: 'p-4 text-center',
+          children: e.jsx('div', {
+            className: 'text-slate-600',
+            children: 'Diving into the ocean...',
+          }),
+        })
+      : n
+        ? e.jsx('div', {
+            className: 'p-4',
+            children: e.jsxs('div', {
+              className: 'bg-red-50 border border-red-200 rounded-lg p-4',
+              children: [
+                e.jsx('div', {
+                  className: 'text-red-800 font-medium',
+                  children: 'Error',
+                }),
+                e.jsx('div', {
+                  className: 'text-red-600 text-sm',
+                  children: n,
+                }),
+                e.jsx('button', {
+                  onClick: () => d(a),
+                  className:
+                    'mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors',
+                  children: 'Try Again',
+                }),
+              ],
+            }),
+          })
+        : e.jsxs('div', {
+            className: 'relative min-h-screen overflow-hidden',
+            children: [
+              e.jsxs('div', {
+                className:
+                  'absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-500 to-blue-600',
+                children: [
+                  e.jsx('div', {
+                    className: 'absolute inset-0 overflow-hidden',
+                    children: [...Array(20)].map((t, s) =>
+                      e.jsx(
+                        'div',
+                        {
+                          className:
+                            'absolute w-2 h-2 bg-blue-200 rounded-full opacity-30 animate-bubble',
+                          style: {
+                            left: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${3 + Math.random() * 4}s`,
+                          },
+                        },
+                        s
+                      )
+                    ),
+                  }),
+                  e.jsx('div', {
+                    className: 'absolute bottom-0 left-0 right-0 h-32',
+                    children: [...Array(8)].map((t, s) =>
+                      e.jsx(
+                        'div',
+                        {
+                          className:
+                            'absolute bottom-0 w-1 bg-green-600 rounded-t-full animate-seaweed',
+                          style: {
+                            left: `${10 + s * 12}%`,
+                            height: `${60 + Math.random() * 40}px`,
+                            animationDelay: `${Math.random() * 2}s`,
+                          },
+                        },
+                        s
+                      )
+                    ),
+                  }),
+                ],
+              }),
+              e.jsxs('div', {
+                className: 'relative z-10 p-4',
+                children: [
+                  e.jsxs('div', {
+                    className: 'text-center mb-8',
+                    children: [
+                      e.jsx('h1', {
+                        className:
+                          'text-4xl font-bold text-white mb-2 drop-shadow-lg',
+                        children: '🌊 Ocean of Connections',
+                      }),
+                      e.jsx('p', {
+                        className: 'text-blue-100 text-lg',
+                        children:
+                          'Watch your students swim in positive relationships',
+                      }),
+                      e.jsxs('div', {
+                        className: 'text-blue-200 text-sm mt-2',
+                        children: [i.length, ' students exploring the depths'],
+                      }),
+                    ],
+                  }),
+                  e.jsx('div', {
+                    className: 'relative h-96 mb-8',
+                    children: i.map((t, s) =>
+                      e.jsx(u, { student: t, index: s, total: i.length }, t.id)
+                    ),
+                  }),
+                  e.jsx('div', {
+                    className:
+                      'bg-white/20 backdrop-blur-sm rounded-lg p-4 max-w-md mx-auto',
+                    children: e.jsxs('div', {
+                      className: 'text-white text-center',
+                      children: [
+                        e.jsx('div', {
+                          className: 'font-semibold mb-2',
+                          children: '🐠 Fish Guide',
+                        }),
+                        e.jsxs('div', {
+                          className: 'text-sm space-y-1',
+                          children: [
+                            e.jsx('div', {
+                              children:
+                                '• Larger fish = stronger positive connections',
+                            }),
+                            e.jsx('div', {
+                              children: '• ✨ Golden glow = recent celebration',
+                            }),
+                            e.jsx('div', {
+                              children:
+                                '• Different heights = unique swimming patterns',
+                            }),
+                          ],
+                        }),
+                      ],
+                    }),
+                  }),
+                ],
+              }),
+            ],
+          })
+    : e.jsxs('div', {
+        className: 'p-4 text-center text-slate-600',
+        children: [
+          e.jsx('div', {
+            className: 'text-lg font-medium mb-2',
+            children: 'No Class Selected',
+          }),
+          e.jsx('div', {
+            className: 'text-sm',
+            children: 'Please select a class to view the ocean.',
+          }),
+        ],
+      });
+}
+function u({ student: a, index: i, total: r }) {
+  const { name: m, positiveConnectionRatio: l, isCelebration: n } = a,
+    o = 0.5 + l * 0.8,
+    d = 20 + (i % 3) * 30,
+    t = (i / r) * 10;
+  return e.jsx('div', {
+    className: 'absolute animate-fish-swim',
+    style: {
+      top: `${d}%`,
+      left: '-100px',
+      transform: `scale(${o})`,
+      animationDelay: `${t}s`,
+      animationDuration: `${15 + Math.random() * 10}s`,
+    },
+    children: e.jsxs('div', {
+      className: 'relative',
+      children: [
+        n &&
+          e.jsx('div', {
+            className: 'absolute inset-0 animate-pulse',
+            children: e.jsx('div', {
+              className:
+                'w-16 h-16 bg-yellow-300 rounded-full opacity-60 blur-sm',
+            }),
+          }),
+        e.jsx('div', {
+          className: 'text-4xl filter drop-shadow-lg',
+          style: { transform: 'scaleX(-1)' },
+          children: '🐠',
+        }),
+        e.jsx('div', {
+          className: 'absolute -bottom-6 left-1/2 transform -translate-x-1/2',
+          children: e.jsx('div', {
+            className:
+              'bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-xs font-medium text-blue-800 whitespace-nowrap',
+            children: m,
+          }),
+        }),
+        n &&
+          e.jsx('div', {
+            className: 'absolute -top-2 -right-2 text-lg animate-bounce',
+            children: '✨',
+          }),
+      ],
+    }),
+  });
+}
+export { j as default };

@@ -1,9 +1,17 @@
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const bodyParser = require('body-parser');
 require('dotenv').config();
+cursor/clean-update
+const { app } = require('./app');
+
+if (!process.env.JWT_SECRET) {
+  // eslint-disable-next-line no-console
+  console.error(
+    'JWT_SECRET is required. Set it in your environment or .env file.'
+  );
+  process.exit(1);
+}
+
+const PORT = process.env.PORT || 3005;
+
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -113,6 +121,9 @@ app.get('/api/predictions', authenticateToken, (req, res) => {
   });
 });
 
+main
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = app;
